@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/model/category.dart';
+import 'package:tutiflutti/page/review.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 
 class StageCategory extends StatefulWidget {
-  final String selectedWord;
   final MainModel model;
 
-  StageCategory(this.selectedWord, this.model);
+  StageCategory(this.model);
 
   @override
   StageCategoryState createState() {
@@ -17,22 +17,33 @@ class StageCategory extends StatefulWidget {
 
 class StageCategoryState extends State<StageCategory> {
   final _inputController = TextEditingController();
+  String selectedGameWork = '';
 
   @override
   void initState() {
     widget.model.fetchCategories();
+    selectedGameWork = 'P';
     super.initState();
   }
 
   Widget _buildInputForm() {
+    final String actualCategoryText = widget.model.getActualCategory().actualCategory;
+    final String inputValueText = widget.model.getUserInput(actualCategoryText)?.inputValue;
+    _inputController.text = inputValueText != null ? inputValueText : '';
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.0),
-      child: TextField(
+      child: TextFormField(
         controller: _inputController,
+        textInputAction: TextInputAction.go,
+        onFieldSubmitted: (term) {
+          widget.model.addUserInput(
+              _inputController.text, widget.model.getActualCategory().actualCategory);
+          widget.model.setNextCategory();
+        },
         textAlign: TextAlign.center,
         maxLength: 21,
         decoration: InputDecoration(
-          hintText: widget.model.getActualCategory().actualCategory,
+          hintText: actualCategoryText,
           hintStyle: new TextStyle(color: Colors.grey[600]),
           filled: true,
           fillColor: Colors.white,
@@ -62,9 +73,8 @@ class StageCategoryState extends State<StageCategory> {
           textColor: Colors.white,
           onPressed: widget.model.existsPrevCategory
               ? () {
-                  widget.model.addInput(
+                  widget.model.addUserInput(
                       _inputController.text, widget.model.getActualCategory().actualCategory);
-                  _inputController.text = '';
                   widget.model.setPreviousCategory();
                 }
               : null,
@@ -81,10 +91,9 @@ class StageCategoryState extends State<StageCategory> {
           color: Colors.redAccent,
           textColor: Colors.white,
           onPressed: () {
-            widget.model
-                .addInput(_inputController.text, widget.model.getActualCategory().actualCategory);
-            _inputController.text = '';
-            print(widget.model.userInputs);
+            widget.model.addUserInput(
+                _inputController.text, widget.model.getActualCategory().actualCategory);
+            Navigator.push(context, MaterialPageRoute(builder: (context) => ReviewPage()));
           },
         ),
         RaisedButton(
@@ -99,9 +108,8 @@ class StageCategoryState extends State<StageCategory> {
           textColor: Colors.white,
           onPressed: widget.model.existsNextCategory
               ? () {
-                  widget.model.addInput(
+                  widget.model.addUserInput(
                       _inputController.text, widget.model.getActualCategory().actualCategory);
-                  _inputController.text = '';
                   widget.model.setNextCategory();
                 }
               : null,
@@ -114,20 +122,25 @@ class StageCategoryState extends State<StageCategory> {
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
-      return Container(
-          child: Center(
-              child: Column(children: <Widget>[
-        SizedBox(
-          height: 100.0,
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('TUTI FLUTI'),
         ),
-        Text('${model.getActualCategory().actualCategory} que inicie con la letra: '),
-        Text(
-          'B',
-          style: TextStyle(fontSize: 56.0),
-        ),
-        _buildInputForm(),
-        _buildActionButton()
-      ])));
+        body: Container(
+            child: Center(
+                child: Column(children: <Widget>[
+          SizedBox(
+            height: 100.0,
+          ),
+          Text('${model.getActualCategory().actualCategory} que inicie con la letra: '),
+          Text(
+            selectedGameWork,
+            style: TextStyle(fontSize: 56.0),
+          ),
+          _buildInputForm(),
+          _buildActionButton()
+        ]))),
+      );
     });
   }
 }

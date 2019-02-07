@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:tutiflutti/page/home.dart';
 import 'package:tutiflutti/page/stage_category.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 
@@ -21,18 +22,17 @@ class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return ScopedModel<MainModel>(
-      model: _model,
-      child: MaterialApp(
+        model: _model,
+        child: MaterialApp(
           title: 'TUTI FLUTTI',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            primarySwatch: Colors.blue,
+            primarySwatch: Colors.teal,
           ),
-          home: Scaffold(
-              appBar: AppBar(
-                title: Text('TUTI FLUTTI'),
-              ),
-              body: StageCategory('F', _model))),
-    );
+          routes: {
+            '/': (BuildContext context) => HomePage(),
+            '/startgame': (BuildContext context) => StageCategory(_model),
+          },
+        ));
   }
 }

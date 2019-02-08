@@ -45,7 +45,7 @@ class HomePage extends StatelessWidget {
                       child: RaisedButton(
                         child: Text('INICIAR'),
                         onPressed: () {
-                          model.userName = _userNameController.text;
+                          model.setUserName(_userNameController.text);
                           Navigator.pushReplacementNamed(context, '/startgame');
                         },
                         color: Theme.of(context).primaryColor,

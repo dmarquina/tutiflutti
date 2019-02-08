@@ -1,15 +1,30 @@
 import 'package:scoped_model/scoped_model.dart';
-import 'package:tutiflutti/model/user_input.dart';
 
 mixin UserInputModel on Model {
   String userName = '';
-  Map<String, UserInput> userInputs = {};
+  String gameWord = '';
+  Map<String, Map<String, Map<String, String>>> userGameWordInputs = {};
 
-  void addUserInput(String inputValue, String category) {
-    userInputs[category] = new UserInput('', userName, inputValue, category);
+  setUserName(String userName) {
+    this.userName = userName;
+    userGameWordInputs[userName] = {};
   }
 
-  UserInput getUserInput(String category){
-    return userInputs[category];
+  setGameWord(String gameWord) {
+    if (this.userName != '') {
+      this.gameWord = gameWord;
+      userGameWordInputs[userName][gameWord] = {};
+    } else {
+      throw ('Ingresa username primero');
+    }
+  }
+
+  void addUserInput(String category, String inputValue) {
+    userGameWordInputs[userName][gameWord][category] = inputValue;
+  }
+
+  String getUserInput(String category) {
+    print(userGameWordInputs[userName][gameWord]);
+    return userGameWordInputs[userName][gameWord][category];
   }
 }

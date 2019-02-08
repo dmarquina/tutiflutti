@@ -13,12 +13,43 @@ class ReviewPage extends StatelessWidget {
         ),
         body: Container(
           child: Column(
-              children: model.userInputs.values
-                  .map((userInput) => Container(
+              children: model.userGameWordInputs.keys
+                  .map((userName) => Container(
                       padding: EdgeInsets.only(top: 5.0),
                       child: Card(
-                        child: Row(
-                          children: <Widget>[Text(userInput.category), Text(userInput.inputValue)],
+                        child: Column(
+                          children: <Widget>[
+                            Text(userName),
+                            Container(
+                                padding: EdgeInsets.all(2.0),
+                                child: Column(
+                                    children: model.userGameWordInputs[userName].keys
+                                        .map(
+                                          (gameWord) => Container(
+                                                child: Column(
+                                                  children: <Widget>[
+                                                    Text(gameWord),
+                                                    Column(
+                                                        children: model
+                                                            .userGameWordInputs[userName][gameWord]
+                                                            .keys
+                                                            .map((cat) => Container(
+                                                                  child: Row(
+                                                                    children: <Widget>[
+                                                                      Text(cat),
+                                                                      Text(' : '),
+                                                                      Text(model.userGameWordInputs[
+                                                                          userName][gameWord][cat])
+                                                                    ],
+                                                                  ),
+                                                                ))
+                                                            .toList())
+                                                  ],
+                                                ),
+                                              ),
+                                        )
+                                        .toList()))
+                          ],
                         ),
                       )))
                   .toList()),

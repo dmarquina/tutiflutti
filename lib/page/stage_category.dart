@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:tutiflutti/model/category.dart';
 import 'package:tutiflutti/page/review.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 
@@ -17,18 +16,19 @@ class StageCategory extends StatefulWidget {
 
 class StageCategoryState extends State<StageCategory> {
   final _inputController = TextEditingController();
-  String selectedGameWork = '';
+  String selectedGameWord = '';
 
   @override
   void initState() {
     widget.model.fetchCategories();
-    selectedGameWork = 'P';
+    widget.model.setGameWord('U');
+    selectedGameWord = widget.model.gameWord;
     super.initState();
   }
 
   Widget _buildInputForm() {
     final String actualCategoryText = widget.model.getActualCategory().actualCategory;
-    final String inputValueText = widget.model.getUserInput(actualCategoryText)?.inputValue;
+    final String inputValueText = widget.model.getUserInput(actualCategoryText);
     _inputController.text = inputValueText != null ? inputValueText : '';
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -36,8 +36,8 @@ class StageCategoryState extends State<StageCategory> {
         controller: _inputController,
         textInputAction: TextInputAction.go,
         onFieldSubmitted: (term) {
-          widget.model.addUserInput(
-              _inputController.text, widget.model.getActualCategory().actualCategory);
+          widget.model
+              .addUserInput(_inputController.text, widget.model.getActualCategory().actualCategory);
           widget.model.setNextCategory();
         },
         textAlign: TextAlign.center,
@@ -74,7 +74,7 @@ class StageCategoryState extends State<StageCategory> {
           onPressed: widget.model.existsPrevCategory
               ? () {
                   widget.model.addUserInput(
-                      _inputController.text, widget.model.getActualCategory().actualCategory);
+                      widget.model.getActualCategory().actualCategory, _inputController.text);
                   widget.model.setPreviousCategory();
                 }
               : null,
@@ -92,7 +92,7 @@ class StageCategoryState extends State<StageCategory> {
           textColor: Colors.white,
           onPressed: () {
             widget.model.addUserInput(
-                _inputController.text, widget.model.getActualCategory().actualCategory);
+                widget.model.getActualCategory().actualCategory, _inputController.text);
             Navigator.push(context, MaterialPageRoute(builder: (context) => ReviewPage()));
           },
         ),
@@ -109,7 +109,7 @@ class StageCategoryState extends State<StageCategory> {
           onPressed: widget.model.existsNextCategory
               ? () {
                   widget.model.addUserInput(
-                      _inputController.text, widget.model.getActualCategory().actualCategory);
+                      widget.model.getActualCategory().actualCategory, _inputController.text);
                   widget.model.setNextCategory();
                 }
               : null,
@@ -134,7 +134,7 @@ class StageCategoryState extends State<StageCategory> {
           ),
           Text('${model.getActualCategory().actualCategory} que inicie con la letra: '),
           Text(
-            selectedGameWork,
+            selectedGameWord,
             style: TextStyle(fontSize: 56.0),
           ),
           _buildInputForm(),

@@ -20,11 +20,12 @@ class StageCategoryState extends State<StageCategory> {
 
   @override
   void initState() {
+    selectedGameWord = widget.model.getRandomAlphabetString();
     widget.model.fetchCategories();
-    widget.model.setGameWord('U');
-    selectedGameWord = widget.model.gameWord;
+    widget.model.setGameWord(selectedGameWord);
     super.initState();
   }
+
 
   Widget _buildInputForm() {
     final String actualCategoryText = widget.model.getActualCategory().actualCategory;

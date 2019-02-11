@@ -131,7 +131,7 @@ class StageCategoryState extends State<StageCategory> {
             child: Center(
                 child: Column(children: <Widget>[
           SizedBox(
-            height: 100.0,
+            height: 50.0,
           ),
           Text('${model.getActualCategory().actualCategory} que inicie con la letra: '),
           Text(

@@ -24,7 +24,21 @@ mixin UserInputModel on Model {
   }
 
   String getUserInput(String category) {
-    print(userGameWordInputs[userName][gameWord]);
     return userGameWordInputs[userName][gameWord][category];
+  }
+
+  Map<String, String> getUserCategoryInputs() {
+    return userGameWordInputs[userName][gameWord];
+  }
+
+  Map<String, String> getUserCategoryInputsNotEmpty() {
+    Map<String, String> inputsNotEmpty = {};
+    userGameWordInputs[userName][gameWord].forEach((key, value) {
+      if (value.isNotEmpty) {
+        inputsNotEmpty.addAll({key: value});
+      }
+    });
+
+    return inputsNotEmpty;
   }
 }

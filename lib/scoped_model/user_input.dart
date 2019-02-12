@@ -4,6 +4,7 @@ mixin UserInputModel on Model {
   String userName = '';
   String gameWord = '';
   Map<String, Map<String, Map<String, String>>> userGameWordInputs = {};
+  int totalScore = 0;
 
   setUserName(String userName) {
     this.userName = userName;

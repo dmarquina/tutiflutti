@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:tutiflutti/model/user_input.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 
 class HomePage extends StatelessWidget {
@@ -15,7 +16,10 @@ class HomePage extends StatelessWidget {
         margin: EdgeInsets.only(top: 100.0),
         child: Column(
           children: <Widget>[
-            Text('Ingresa tu nombre',style: TextStyle(fontSize: 20.0),),
+            Text(
+              'Ingresa tu nombre',
+              style: TextStyle(fontSize: 20.0),
+            ),
             SizedBox(
               height: 10.0,
             ),
@@ -24,7 +28,7 @@ class HomePage extends StatelessWidget {
                 child: TextField(
                   controller: _userNameController,
                   textAlign: TextAlign.center,
-                  maxLength: 21,
+                  maxLength: 12,
                   decoration: InputDecoration(
                     hintStyle: new TextStyle(color: Colors.grey[600]),
                     filled: true,
@@ -46,7 +50,17 @@ class HomePage extends StatelessWidget {
                         child: Text('INICIAR'),
                         onPressed: () {
                           model.setUserName(_userNameController.text);
-                          Navigator.pushReplacementNamed(context, '/startgame');
+                          model
+                              .addUser(new User(_userNameController.text, gameId: '1'))
+                              .then((result) {
+                            if (result) {
+                              Navigator.pushReplacementNamed(context, '/waitingroom');
+                            } else {
+                              showDialog(context: context,builder: (BuildContext context) {
+                                return AlertDialog(title: Text('Error'), content: Text(model.errorMessage));
+                              });
+                            }
+                          });
                         },
                         color: Theme.of(context).primaryColor,
                         textColor: Colors.white,

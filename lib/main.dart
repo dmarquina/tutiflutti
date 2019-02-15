@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/page/home.dart';
 import 'package:tutiflutti/page/stage_category.dart';
+import 'package:tutiflutti/page/waiting_room.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 
 void main() {
@@ -32,6 +33,7 @@ class MyAppState extends State<MyApp> {
           ),
           routes: {
             '/': (BuildContext context) => HomePage(),
+            '/waitingroom': (BuildContext context) => WaitingRoom(_model),
             '/startgame': (BuildContext context) => StageCategory(_model),
           },
         ));

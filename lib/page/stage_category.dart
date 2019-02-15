@@ -26,7 +26,6 @@ class StageCategoryState extends State<StageCategory> {
     super.initState();
   }
 
-
   Widget _buildInputForm() {
     final String actualCategoryText = widget.model.getActualCategory().actualCategory;
     final String inputValueText = widget.model.getUserInput(actualCategoryText);
@@ -61,59 +60,67 @@ class StageCategoryState extends State<StageCategory> {
   Widget _buildActionButton() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-        RaisedButton(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Icon(Icons.navigate_before),
-              Text('Atras'),
-            ],
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <Widget>[
+        Container(
+          width: 50.0,
+          height: 50.0,
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.teal,
+              boxShadow: [new BoxShadow(color: const Color(0x11000000), blurRadius: 10.0)]),
+          child: RawMaterialButton(
+            onPressed: widget.model.existsPrevCategory
+                ? () {
+                    widget.model.addUserInput(
+                        widget.model.getActualCategory().actualCategory, _inputController.text);
+                    widget.model.setPreviousCategory();
+                  }
+                : null,
+            shape: CircleBorder(),
+            elevation: 1.0,
+            child: Icon(Icons.navigate_before, color: Colors.white),
           ),
-          color: Colors.blue,
-          textColor: Colors.white,
-          onPressed: widget.model.existsPrevCategory
-              ? () {
-                  widget.model.addUserInput(
-                      widget.model.getActualCategory().actualCategory, _inputController.text);
-                  widget.model.setPreviousCategory();
-                }
-              : null,
         ),
-        RaisedButton(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              Icon(Icons.navigate_next),
-              Text('STOP'),
-              Icon(Icons.navigate_before),
-            ],
+        Container(
+          width: 100.0,
+          height: 100.0,
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.red,
+              boxShadow: [new BoxShadow(color: const Color(0x11000000), blurRadius: 10.0)]),
+          child: RawMaterialButton(
+            onPressed: () {
+              widget.model.addUserInput(
+                  widget.model.getActualCategory().actualCategory, _inputController.text);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ReviewPage()));
+            },
+            shape: CircleBorder(),
+            elevation: 1.0,
+            child: Text(
+              'STOP',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
-          color: Colors.redAccent,
-          textColor: Colors.white,
-          onPressed: () {
-            widget.model.addUserInput(
-                widget.model.getActualCategory().actualCategory, _inputController.text);
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ReviewPage()));
-          },
         ),
-        RaisedButton(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Text('Continuar'),
-              Icon(Icons.navigate_next),
-            ],
+        Container(
+          width: 50.0,
+          height: 50.0,
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.teal,
+              boxShadow: [new BoxShadow(color: const Color(0x11000000), blurRadius: 10.0)]),
+          child: RawMaterialButton(
+            onPressed: widget.model.existsNextCategory
+                ? () {
+                    widget.model.addUserInput(
+                        widget.model.getActualCategory().actualCategory, _inputController.text);
+                    widget.model.setNextCategory();
+                  }
+                : null,
+            shape: CircleBorder(),
+            elevation: 1.0,
+            child: Icon(Icons.navigate_next, color: Colors.white),
           ),
-          color: Colors.green,
-          textColor: Colors.white,
-          onPressed: widget.model.existsNextCategory
-              ? () {
-                  widget.model.addUserInput(
-                      widget.model.getActualCategory().actualCategory, _inputController.text);
-                  widget.model.setNextCategory();
-                }
-              : null,
         ),
       ]),
     );

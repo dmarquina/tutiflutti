@@ -17,7 +17,7 @@ class HomePage extends StatelessWidget {
         child: Column(
           children: <Widget>[
             Text(
-              'Ingresa tu nombre',
+              'Ingresa tu usuario',
               style: TextStyle(fontSize: 20.0),
             ),
             SizedBox(
@@ -56,9 +56,20 @@ class HomePage extends StatelessWidget {
                             if (result) {
                               Navigator.pushReplacementNamed(context, '/waitingroom');
                             } else {
-                              showDialog(context: context,builder: (BuildContext context) {
-                                return AlertDialog(title: Text('Error'), content: Text(model.errorMessage));
-                              });
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                        content: Text(model.errorMessage),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                            child: Text('OK'),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                          )
+                                        ]);
+                                  });
                             }
                           });
                         },

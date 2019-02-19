@@ -50,28 +50,8 @@ class HomePage extends StatelessWidget {
                         child: Text('INICIAR'),
                         onPressed: () {
                           model.setUserName(_userNameController.text);
-                          model
-                              .addUser(new User(_userNameController.text, gameId: '1'))
-                              .then((result) {
-                            if (result) {
-                              Navigator.pushReplacementNamed(context, '/waitingroom');
-                            } else {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                        content: Text(model.errorMessage),
-                                        actions: <Widget>[
-                                          FlatButton(
-                                            child: Text('OK'),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                          )
-                                        ]);
-                                  });
-                            }
-                          });
+                          model.addUser(new User(_userNameController.text, gameId: '1'));
+                          Navigator.pushReplacementNamed(context, '/waitingroom');
                         },
                         color: Theme.of(context).primaryColor,
                         textColor: Colors.white,

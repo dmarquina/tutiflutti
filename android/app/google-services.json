@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "646371425898",
+    "firebase_url": "https://tutiflutti.firebaseio.com",
+    "project_id": "tutiflutti",
+    "storage_bucket": "tutiflutti.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:646371425898:android:b0af1c88187c8f6c",
+        "android_client_info": {
+          "package_name": "com.dmarquina.tutiflutti"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "646371425898-9trvc47s3u66ma8pkgasscf1keec16on.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzQ_lnvmHrEuI_0tFOR0eHEsRVEKDY61U"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

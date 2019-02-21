@@ -10,7 +10,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('TUTI FLUTI'),
+        title: Text('TUTI FLUTTI'),
       ),
       body: Container(
         margin: EdgeInsets.only(top: 100.0),
@@ -49,9 +49,8 @@ class HomePage extends StatelessWidget {
                       child: RaisedButton(
                         child: Text('INICIAR'),
                         onPressed: () {
-                          model.setUserName(_userNameController.text);
-                          model.addUser(new User(_userNameController.text, gameId: '1'));
-                          Navigator.pushReplacementNamed(context, '/waitingroom');
+                          model.createUser(new User(_userNameController.text));
+                          Navigator.pushReplacementNamed(context, '/rooms');
                         },
                         color: Theme.of(context).primaryColor,
                         textColor: Colors.white,

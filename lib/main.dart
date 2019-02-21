@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:tutiflutti/page/rooms.dart';
 import 'package:tutiflutti/page/home.dart';
 import 'package:tutiflutti/page/stage_category.dart';
 import 'package:tutiflutti/page/waiting_room.dart';
@@ -33,6 +34,7 @@ class MyAppState extends State<MyApp> {
           ),
           routes: {
             '/': (BuildContext context) => HomePage(),
+            '/rooms': (BuildContext context) => RoomsPage(),
             '/waitingroom': (BuildContext context) => WaitingRoom(_model),
             '/startgame': (BuildContext context) => StageCategory(_model),
           },

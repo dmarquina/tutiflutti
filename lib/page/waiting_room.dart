@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -17,11 +19,24 @@ class WaitingRoom extends StatefulWidget {
 }
 
 class WaitingRoomState extends State<WaitingRoom> {
+  StreamSubscription _subscriptionGameStatus;
+
   @override
   void initState() {
     widget._model.getAllUsers();
+    widget._model
+        .watchGameStatusInProgress(startGame)
+        .then((StreamSubscription s) => _subscriptionGameStatus = s);
     super.initState();
   }
+
+  @override
+  void dispose() {
+    _subscriptionGameStatus.cancel();
+    super.dispose();
+  }
+
+  startGame() => Navigator.pushReplacementNamed(context, '/startgame');
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +52,7 @@ class WaitingRoomState extends State<WaitingRoom> {
               Expanded(
                   flex: 8,
                   child: FirebaseAnimatedList(
-                      query: widget._model.getAllUsers(),
+                      query: widget._model.getAllGameUsers(),
                       itemBuilder: (BuildContext context, DataSnapshot snapshot,
                           Animation<double> animation, int index) {
                         return Container(
@@ -47,15 +62,14 @@ class WaitingRoomState extends State<WaitingRoom> {
                               snapshot.value['username'],
                               style: TextStyle(
                                   fontSize: 24.0,
-                                  color: RainbowColors.rainbowColor(index < 7 ? index : index - 7)),
+                                  color: RainbowColors.rainbowColor(
+                                      index < 7 ? index : (index % 7).toInt())),
                             ));
                       })),
               Expanded(
                   flex: 2,
                   child: FlatButton(
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/startgame');
-                    },
+                    onPressed: () => model.updateGameStatus('inprogress'),
                     child: Text(
                       "¡A JUGAR!",
                       style: TextStyle(color: Colors.white, fontSize: 20.0),

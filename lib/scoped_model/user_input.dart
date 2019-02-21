@@ -1,12 +1,9 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:http/http.dart' as http;
 import 'package:tutiflutti/model/user_input.dart';
 
 mixin UserInputModel on Model {
+  String userId = '';
   String userName = '';
   String gameWord = '';
   String _errorMessage = '';
@@ -19,6 +16,10 @@ mixin UserInputModel on Model {
   setUserName(String userName) {
     this.userName = userName;
     userGameWordInputs[userName] = {};
+  }
+
+  setUserId(String userId) {
+    this.userId = userId;
   }
 
   setGameWord(String gameWord) {
@@ -53,19 +54,21 @@ mixin UserInputModel on Model {
     return inputsNotEmpty;
   }
 
-  void addUser(User user) async{
+  void createUser(User user) async {
+    this.setUserName(user.username);
     Map<String, dynamic> newUserData = {
       'username': user.username,
       'score': user.score,
       'gameId': user.gameId
     };
-    await userDatabase.push().set(newUserData).then((res) {}, onError: (error) {
-      print(error);
-    });
+
+    DatabaseReference newUser = userDatabase.push();
+    newUser.set(newUserData);
+    this.setUserId(newUser.key);
   }
 
   DatabaseReference getAllUsers() {
-     return userDatabase;
+    return userDatabase;
   }
 
   List<User> get allUsers => List.from(_users);

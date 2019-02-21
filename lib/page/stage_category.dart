@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/page/review.dart';
@@ -17,13 +19,24 @@ class StageCategory extends StatefulWidget {
 class StageCategoryState extends State<StageCategory> {
   final _inputController = TextEditingController();
   String selectedGameWord = '';
+  StreamSubscription _subscriptionGameStatus;
 
   @override
   void initState() {
     selectedGameWord = widget.model.getRandomAlphabetString();
     widget.model.fetchCategories();
-    widget.model.setGameWord(selectedGameWord);
+    widget.model.updateGameWord(selectedGameWord);
+    widget.model.setGameWord(widget.model.getGameWord());
+    widget.model
+        .watchGameStatusStop(stopEveryone)
+        .then((StreamSubscription s) => _subscriptionGameStatus = s);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _subscriptionGameStatus.cancel();
+    super.dispose();
   }
 
   Widget _buildInputForm() {
@@ -89,11 +102,7 @@ class StageCategoryState extends State<StageCategory> {
               color: Colors.red,
               boxShadow: [new BoxShadow(color: const Color(0x11000000), blurRadius: 10.0)]),
           child: RawMaterialButton(
-            onPressed: () {
-              widget.model.addUserInput(
-                  widget.model.getActualCategory().actualCategory, _inputController.text);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ReviewPage()));
-            },
+            onPressed: () => widget.model.updateGameStatus('stop'),
             shape: CircleBorder(),
             elevation: 1.0,
             child: Text(
@@ -126,29 +135,34 @@ class StageCategoryState extends State<StageCategory> {
     );
   }
 
+  void stopEveryone() {
+    widget.model
+        .addUserInput(widget.model.getActualCategory().actualCategory, _inputController.text);
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ReviewPage()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text('TUTI FLUTI'),
-        ),
-        body: Container(
-            child: Center(
-                child: Column(children: <Widget>[
-          SizedBox(
-            height: 50.0,
+          appBar: AppBar(
+            title: Text('TUTI FLUTI'),
           ),
-          Text('${model.getActualCategory().actualCategory} que inicie con la letra: '),
-          Text(
-            selectedGameWord,
-            style: TextStyle(fontSize: 56.0),
-          ),
-          _buildInputForm(),
-          _buildActionButton()
-        ]))),
-      );
+          body: Container(
+              child: Center(
+                  child: Column(children: <Widget>[
+            SizedBox(
+              height: 50.0,
+            ),
+            Text('${model.getActualCategory().actualCategory} que inicie con la letra: '),
+            Text(
+              selectedGameWord,
+              style: TextStyle(fontSize: 56.0),
+            ),
+            _buildInputForm(),
+            _buildActionButton()
+          ]))));
     });
   }
 }

@@ -27,7 +27,7 @@ class RoomsPage extends StatelessWidget {
                   })),
           floatingActionButton: FloatingActionButton(
               onPressed: () {
-                model.startGame(model.userId, model.userName);
+                model.startGame(model.userId, model.username);
                 Navigator.pushReplacementNamed(context, Constants.WAITING_ROOM_PATH);
               },
               child: Icon(Icons.add)));
@@ -45,7 +45,7 @@ class RoomsPage extends StatelessWidget {
         ),
         onTap: () {
           model.setGameId(snapshot.key);
-          model.addUserGame(model.userId, model.userName);
+          model.addUserGame(model.userId, model.username);
           Navigator.pushReplacementNamed(context, Constants.WAITING_ROOM_PATH);
         },
       ),

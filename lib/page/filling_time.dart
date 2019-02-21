@@ -5,7 +5,7 @@ import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/page/review.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
-import 'package:tutiflutti/util/random_word.dart';
+import 'package:tutiflutti/util/random_letter.dart';
 import 'package:tutiflutti/util/ui/rounded_button.dart';
 
 class FillingTimePage extends StatefulWidget {
@@ -21,19 +21,14 @@ class FillingTimePage extends StatefulWidget {
 
 class FillingTimePageState extends State<FillingTimePage> {
   final _inputController = TextEditingController();
-  String selectedGameWord = Constants.EMPTY_CHARACTER;
+  String gameLetter = Constants.EMPTY_CHARACTER;
   StreamSubscription _subscriptionGameStatus;
 
   @override
   void initState() {
-    selectedGameWord = RandomWord.getRandomWord();
+    widget.model.updateGameLetter();
+    widget.model.gameLetter.then((letter) => gameLetter = letter);
     widget.model.fetchCategories();
-    String gameWordGame = widget.model.getGameWord();
-    if (gameWordGame == null || gameWordGame == Constants.EMPTY_CHARACTER) {
-      widget.model.updateGameWord(selectedGameWord);
-    }
-    selectedGameWord = widget.model.getGameWord();
-    widget.model.setGameWord(selectedGameWord);
     widget.model
         .watchIfGameStatusStop(stopEveryone)
         .then((StreamSubscription s) => _subscriptionGameStatus = s);
@@ -140,7 +135,7 @@ class FillingTimePageState extends State<FillingTimePage> {
             ),
             Text('${model.getActualCategory().actualCategory} que inicie con la letra: '),
             Text(
-              selectedGameWord,
+              gameLetter,
               style: TextStyle(fontSize: 56.0),
             ),
             _buildInputForm(),

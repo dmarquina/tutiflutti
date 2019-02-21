@@ -6,7 +6,7 @@ import 'package:tutiflutti/scoped_model/main.dart';
 
 class ReviewPage extends StatelessWidget {
   Widget fetchAnswers(MainModel model) {
-    Map<String, String> userCategoryInputsNotEmpty = model.getUserCategoryInputsNotEmpty();
+    Map<String, String> userCategoryInputsNotEmpty = model.userInputs;
     int _itemCount = userCategoryInputsNotEmpty.length;
     List categoriesInput = userCategoryInputsNotEmpty.keys.toList();
     List valuesInput = userCategoryInputsNotEmpty.values.toList();
@@ -15,14 +15,14 @@ class ReviewPage extends StatelessWidget {
       child: ListView.builder(
           itemBuilder: (BuildContext context, int index) {
             return Dismissible(
-              key: Key('${model.userName}${categoriesInput[index]}${valuesInput[index]}'),
+              key: Key('${model.username}${categoriesInput[index]}${valuesInput[index]}'),
               direction: DismissDirection.horizontal,
               onDismissed: (DismissDirection direction) {
                 if (direction == DismissDirection.startToEnd) {
-                  model.totalScore += 10;
+//                  model.totalScore += 10;
                 } else if (direction == DismissDirection.endToStart) {
                   model.conflicts.add(
-                      new Conflict(model.userName, categoriesInput[index], valuesInput[index]));
+                      new Conflict(model.username, categoriesInput[index], valuesInput[index]));
                 }
                 _itemCount--;
                 if (_itemCount == 0) {
@@ -66,7 +66,7 @@ class ReviewPage extends StatelessWidget {
                   height: 50.0,
                 ),
                 Text(
-                  model.gameWord,
+                  'A',
                   style: TextStyle(fontSize: 56.0),
                 ),
                 SizedBox(
@@ -77,7 +77,7 @@ class ReviewPage extends StatelessWidget {
                   text: TextSpan(style: TextStyle(color: Colors.black), children: [
                     TextSpan(text: 'Corrobora las respuestas de '),
                     TextSpan(
-                      text: '${model.userName}',
+                      text: '${model.username}',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     )
                   ]),

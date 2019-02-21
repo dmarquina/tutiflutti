@@ -52,7 +52,7 @@ class ConflictsPage extends StatelessWidget {
                   height: 50.0,
                 ),
                 Text(
-                  model.gameWord,
+                  'A',
                   style: TextStyle(fontSize: 56.0),
                 ),
                 SizedBox(

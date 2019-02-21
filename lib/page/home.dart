@@ -63,7 +63,7 @@ class HomePage extends StatelessWidget {
             child: RaisedButton(
               child: Text('INICIAR'),
               onPressed: () {
-                model.createUser(new User(_usernameController.text));
+                model.createUser(_usernameController.text);
                 Navigator.pushReplacementNamed(context, Constants.ROOMS_PATH);
               },
               color: Theme.of(context).primaryColor,

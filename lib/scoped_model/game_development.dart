@@ -5,54 +5,60 @@ import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/model/conflict.dart';
 import 'package:tutiflutti/util/constants.dart';
 import 'package:tutiflutti/util/firebase_child_reference.dart';
+import 'package:tutiflutti/util/random_letter.dart';
 
 mixin GameDevelopmentModel on Model {
   String _gameId;
+  String _gameLetter = '';
   List<Conflict> conflicts = [];
 
   final DatabaseReference gameDatabase = FirebaseReference.getReference('game');
 
-  void setGameId(String gameId) {
-    this._gameId = gameId;
+  setGameId(String gameId) => this._gameId = gameId;
+
+  String get gameId => this._gameId;
+
+  setGameLetter(String gameLetter) => this._gameLetter = gameLetter;
+
+  Future<String> get gameLetter async{
+    if(this._gameLetter == ''){
+      DataSnapshot letter = await gameDatabase.child(_gameId).child('letter').once();
+      this._gameLetter = letter.value.toString();
+    }
+     return this._gameLetter;
   }
 
-  String getGameId() => this._gameId;
 
-  DatabaseReference getAllGames() {
-    return gameDatabase;
-  }
 
-  DatabaseReference getAllGameUsers() {
-    return gameDatabase.child(_gameId).child('users');
-  }
+  DatabaseReference getAllGames() => gameDatabase;
 
-  void startGame(String userId, String username) {
+  DatabaseReference getAllGameUsers() => gameDatabase.child(_gameId).child('users');
+
+  startGame(String userId, String username) {
     DatabaseReference newGame = gameDatabase.push();
     newGame.set({
-      'status': 'waiting',
-      'word': '',
+      'status': Constants.GAME_STATUS_WAITING,
+      'letter': Constants.EMPTY_CHARACTER,
+      'missing_letters': new List<int>.generate(25, (int index) => index + 65),
       'users': {
-        userId: {'username': username}
+        userId: {'username': username, 'score': 0}
       }
     });
     this.setGameId(newGame.key);
   }
 
-  void addUserGame(String userId, String username) {
-    gameDatabase.child(_gameId).child('users').child(userId).set({'username': username});
+  addUserGame(String userId, String username) =>
+      gameDatabase.child(_gameId).child('users').child(userId).set({'username': username});
+
+  /*TODO: Fix this :v */
+  updateGameLetter() async{
+    DataSnapshot missingLetters = await gameDatabase.child(_gameId).child('missing_letters').once();
+    Map<String, List<int>> randomLetter = RandomLetter.getRandomLetter(List<int>.from(missingLetters.value));
+    await gameDatabase.child(_gameId).update({'letter': randomLetter.keys.first});
+    await gameDatabase.child(_gameId).update({'missing_letters': randomLetter.values.first});
   }
 
-  String getGameWord() {
-    return gameDatabase.child(_gameId).child('word').toString();
-  }
-
-  void updateGameWord(String word) {
-    gameDatabase.child(_gameId).update({'word': word});
-  }
-
-  void updateGameStatus(String status) {
-    gameDatabase.child(_gameId).update({'status': status});
-  }
+  updateGameStatus(String status) => gameDatabase.child(_gameId).update({'status': status});
 
   Future<StreamSubscription<Event>> watchIfGameStatusInProgress(startGame) async {
     return gameDatabase.child(_gameId).onValue.listen((Event event) {

@@ -3,9 +3,10 @@ import 'package:flutter/rendering.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/page/rooms.dart';
 import 'package:tutiflutti/page/home.dart';
-import 'package:tutiflutti/page/stage_category.dart';
+import 'package:tutiflutti/page/filling_time.dart';
 import 'package:tutiflutti/page/waiting_room.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
+import 'package:tutiflutti/util/constants.dart';
 
 void main() {
 //  debugPaintSizeEnabled = true;
@@ -27,16 +28,16 @@ class MyAppState extends State<MyApp> {
     return ScopedModel<MainModel>(
         model: _model,
         child: MaterialApp(
-          title: 'TUTI FLUTTI',
+          title: Constants.TITLE,
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             primarySwatch: Colors.teal,
           ),
           routes: {
-            '/': (BuildContext context) => HomePage(),
-            '/rooms': (BuildContext context) => RoomsPage(),
-            '/waitingroom': (BuildContext context) => WaitingRoom(_model),
-            '/startgame': (BuildContext context) => StageCategory(_model),
+            Constants.HOME_PATH: (BuildContext context) => HomePage(),
+            Constants.ROOMS_PATH: (BuildContext context) => RoomsPage(),
+            Constants.WAITING_ROOM_PATH: (BuildContext context) => WaitingRoom(_model),
+            Constants.START_GAME_PATH: (BuildContext context) => FillingTimePage(_model),
           },
         ));
   }

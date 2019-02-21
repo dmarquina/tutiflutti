@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 class RainbowColors {
   static Color rainbowColor(int i) {
+    i = getRainbowColorNumber(i);
     Color color = Colors.black;
     switch (i) {
       case 0:
@@ -30,4 +31,6 @@ class RainbowColors {
     }
     return color;
   }
+
+  static int getRainbowColorNumber(int index) => index < 7 ? index : (index % 7).toInt();
 }

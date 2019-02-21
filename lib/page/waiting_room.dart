@@ -4,7 +4,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
-import 'package:tutiflutti/util/rainbow_colors.dart';
+import 'package:tutiflutti/util/constants.dart';
+import 'package:tutiflutti/util/ui/rainbow_colors.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 
 class WaitingRoom extends StatefulWidget {
@@ -13,9 +14,7 @@ class WaitingRoom extends StatefulWidget {
   WaitingRoom(this._model);
 
   @override
-  WaitingRoomState createState() {
-    return new WaitingRoomState();
-  }
+  WaitingRoomState createState() => WaitingRoomState();
 }
 
 class WaitingRoomState extends State<WaitingRoom> {
@@ -25,7 +24,7 @@ class WaitingRoomState extends State<WaitingRoom> {
   void initState() {
     widget._model.getAllUsers();
     widget._model
-        .watchGameStatusInProgress(startGame)
+        .watchIfGameStatusInProgress(startGame)
         .then((StreamSubscription s) => _subscriptionGameStatus = s);
     super.initState();
   }
@@ -36,7 +35,7 @@ class WaitingRoomState extends State<WaitingRoom> {
     super.dispose();
   }
 
-  startGame() => Navigator.pushReplacementNamed(context, '/startgame');
+  startGame() => Navigator.pushReplacementNamed(context, Constants.START_GAME_PATH);
 
   @override
   Widget build(BuildContext context) {
@@ -49,34 +48,32 @@ class WaitingRoomState extends State<WaitingRoom> {
           body: Container(
             color: Colors.black87,
             child: Column(children: <Widget>[
-              Expanded(
-                  flex: 8,
-                  child: FirebaseAnimatedList(
-                      query: widget._model.getAllGameUsers(),
-                      itemBuilder: (BuildContext context, DataSnapshot snapshot,
-                          Animation<double> animation, int index) {
-                        return Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(vertical: 25.0),
-                            child: Text(
-                              snapshot.value['username'],
-                              style: TextStyle(
-                                  fontSize: 24.0,
-                                  color: RainbowColors.rainbowColor(
-                                      index < 7 ? index : (index % 7).toInt())),
-                            ));
-                      })),
-              Expanded(
-                  flex: 2,
-                  child: FlatButton(
-                    onPressed: () => model.updateGameStatus('inprogress'),
-                    child: Text(
-                      "¡A JUGAR!",
-                      style: TextStyle(color: Colors.white, fontSize: 20.0),
-                    ),
-                  ))
+              Expanded(flex: 8, child: _buildUsersBoard()),
+              Expanded(flex: 2, child: _buildLetsPlayButton(model))
             ]),
           ));
     });
+  }
+
+  Widget _buildUsersBoard() {
+    return FirebaseAnimatedList(
+        query: widget._model.getAllGameUsers(),
+        itemBuilder:
+            (BuildContext context, DataSnapshot snapshot, Animation<double> animation, int index) {
+          return Container(
+              alignment: Alignment.center,
+              margin: EdgeInsets.symmetric(vertical: 25.0),
+              child: Text(
+                snapshot.value['username'],
+                style: TextStyle(fontSize: 24.0, color: RainbowColors.rainbowColor(index)),
+              ));
+        });
+  }
+
+  Widget _buildLetsPlayButton(MainModel model) {
+    return FlatButton(
+      onPressed: () => model.updateGameStatus(Constants.GAME_STATUS_IN_PROGRESS),
+      child: Text('¡A JUGAR!', style: TextStyle(color: Colors.white, fontSize: 20.0)),
+    );
   }
 }

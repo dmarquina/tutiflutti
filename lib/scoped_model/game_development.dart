@@ -1,40 +1,29 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/model/conflict.dart';
+import 'package:tutiflutti/util/constants.dart';
+import 'package:tutiflutti/util/firebase_child_reference.dart';
 
 mixin GameDevelopmentModel on Model {
-  Random _random = new Random();
-  String gameId;
-  String gameStatus = '';
-  List<int> a = new List<int>.generate(25, (int index) => index + 65);
+  String _gameId;
   List<Conflict> conflicts = [];
 
-  final DatabaseReference gameDatabase = FirebaseDatabase.instance.reference().child('game');
-
-  String getRandomAlphabetString() {
-    int randomIndexWord = next(0, a.length);
-    String gameWord = String.fromCharCode(a.elementAt(randomIndexWord));
-    a.removeAt(randomIndexWord);
-    return gameWord;
-  }
-
-  int next(int min, int max) => min + _random.nextInt(max - min);
+  final DatabaseReference gameDatabase = FirebaseReference.getReference('game');
 
   void setGameId(String gameId) {
-    this.gameId = gameId;
+    this._gameId = gameId;
   }
 
-  String getGameId() => this.gameId;
+  String getGameId() => this._gameId;
 
   DatabaseReference getAllGames() {
     return gameDatabase;
   }
 
   DatabaseReference getAllGameUsers() {
-    return gameDatabase.child(gameId).child('users');
+    return gameDatabase.child(_gameId).child('users');
   }
 
   void startGame(String userId, String username) {
@@ -50,32 +39,32 @@ mixin GameDevelopmentModel on Model {
   }
 
   void addUserGame(String userId, String username) {
-    gameDatabase.child(gameId).child('users').child(userId).set({'username': username});
+    gameDatabase.child(_gameId).child('users').child(userId).set({'username': username});
   }
 
   String getGameWord() {
-    return gameDatabase.child(gameId).child('word').toString();
+    return gameDatabase.child(_gameId).child('word').toString();
   }
 
   void updateGameWord(String word) {
-    gameDatabase.child(gameId).update({'word': word});
+    gameDatabase.child(_gameId).update({'word': word});
   }
 
   void updateGameStatus(String status) {
-    gameDatabase.child(gameId).update({'status': status});
+    gameDatabase.child(_gameId).update({'status': status});
   }
 
-  Future<StreamSubscription<Event>> watchGameStatusInProgress(startGame) async {
-    return gameDatabase.child(gameId).onValue.listen((Event event) {
-      if (event.snapshot.value['status'] == 'inprogress') {
+  Future<StreamSubscription<Event>> watchIfGameStatusInProgress(startGame) async {
+    return gameDatabase.child(_gameId).onValue.listen((Event event) {
+      if (event.snapshot.value['status'] == Constants.GAME_STATUS_IN_PROGRESS) {
         startGame();
       }
     });
   }
 
-  Future<StreamSubscription<Event>> watchGameStatusStop(stopEveryone) async {
-    return gameDatabase.child(gameId).onValue.listen((Event event) {
-      if (event.snapshot.value['status'] == 'stop') {
+  Future<StreamSubscription<Event>> watchIfGameStatusStop(stopEveryone) async {
+    return gameDatabase.child(_gameId).onValue.listen((Event event) {
+      if (event.snapshot.value['status'] == Constants.GAME_STATUS_STOP) {
         stopEveryone();
       }
     });

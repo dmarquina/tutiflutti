@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/model/user_input.dart';
+import 'package:tutiflutti/util/firebase_child_reference.dart';
 
 mixin UserInputModel on Model {
   String userId = '';
@@ -11,7 +12,7 @@ mixin UserInputModel on Model {
   Map<String, Map<String, Map<String, String>>> userGameWordInputs = {};
   int totalScore = 0;
 
-  final DatabaseReference userDatabase = FirebaseDatabase.instance.reference().child('user');
+  final DatabaseReference userDatabase = FirebaseReference.getReference('user');
 
   setUserName(String userName) {
     this.userName = userName;

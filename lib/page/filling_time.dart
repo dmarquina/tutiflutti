@@ -4,31 +4,38 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/page/review.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
+import 'package:tutiflutti/util/constants.dart';
+import 'package:tutiflutti/util/random_word.dart';
+import 'package:tutiflutti/util/ui/rounded_button.dart';
 
-class StageCategory extends StatefulWidget {
+class FillingTimePage extends StatefulWidget {
   final MainModel model;
 
-  StageCategory(this.model);
+  FillingTimePage(this.model);
 
   @override
-  StageCategoryState createState() {
-    return new StageCategoryState();
+  FillingTimePageState createState() {
+    return new FillingTimePageState();
   }
 }
 
-class StageCategoryState extends State<StageCategory> {
+class FillingTimePageState extends State<FillingTimePage> {
   final _inputController = TextEditingController();
-  String selectedGameWord = '';
+  String selectedGameWord = Constants.EMPTY_CHARACTER;
   StreamSubscription _subscriptionGameStatus;
 
   @override
   void initState() {
-    selectedGameWord = widget.model.getRandomAlphabetString();
+    selectedGameWord = RandomWord.getRandomWord();
     widget.model.fetchCategories();
-    widget.model.updateGameWord(selectedGameWord);
-    widget.model.setGameWord(widget.model.getGameWord());
+    String gameWordGame = widget.model.getGameWord();
+    if (gameWordGame == null || gameWordGame == Constants.EMPTY_CHARACTER) {
+      widget.model.updateGameWord(selectedGameWord);
+    }
+    selectedGameWord = widget.model.getGameWord();
+    widget.model.setGameWord(selectedGameWord);
     widget.model
-        .watchGameStatusStop(stopEveryone)
+        .watchIfGameStatusStop(stopEveryone)
         .then((StreamSubscription s) => _subscriptionGameStatus = s);
     super.initState();
   }
@@ -42,7 +49,7 @@ class StageCategoryState extends State<StageCategory> {
   Widget _buildInputForm() {
     final String actualCategoryText = widget.model.getActualCategory().actualCategory;
     final String inputValueText = widget.model.getUserInput(actualCategoryText);
-    _inputController.text = inputValueText != null ? inputValueText : '';
+    _inputController.text = inputValueText != null ? inputValueText : Constants.EMPTY_CHARACTER;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.0),
       child: TextFormField(
@@ -70,67 +77,43 @@ class StageCategoryState extends State<StageCategory> {
     );
   }
 
+  Function _goPreviousCategory() {
+    return widget.model.existsPrevCategory
+        ? () {
+            widget.model.addUserInput(
+                widget.model.getActualCategory().actualCategory, _inputController.text);
+            widget.model.setPreviousCategory();
+          }
+        : null;
+  }
+
+  Function _goNextCategory() {
+    return widget.model.existsNextCategory
+        ? () {
+            widget.model.addUserInput(
+                widget.model.getActualCategory().actualCategory, _inputController.text);
+            widget.model.setNextCategory();
+          }
+        : null;
+  }
+
+  void _stopGame() {
+    widget.model.updateGameStatus(Constants.GAME_STATUS_STOP);
+  }
+
+  Widget _previousIcon() => Icon(Icons.navigate_before, color: Colors.white);
+
+  Widget _stopText() => Text('STOP', style: TextStyle(color: Colors.white));
+
+  Widget _nextIcon() => Icon(Icons.navigate_next, color: Colors.white);
+
   Widget _buildActionButton() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <Widget>[
-        Container(
-          width: 50.0,
-          height: 50.0,
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.teal,
-              boxShadow: [new BoxShadow(color: const Color(0x11000000), blurRadius: 10.0)]),
-          child: RawMaterialButton(
-            onPressed: widget.model.existsPrevCategory
-                ? () {
-                    widget.model.addUserInput(
-                        widget.model.getActualCategory().actualCategory, _inputController.text);
-                    widget.model.setPreviousCategory();
-                  }
-                : null,
-            shape: CircleBorder(),
-            elevation: 1.0,
-            child: Icon(Icons.navigate_before, color: Colors.white),
-          ),
-        ),
-        Container(
-          width: 100.0,
-          height: 100.0,
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.red,
-              boxShadow: [new BoxShadow(color: const Color(0x11000000), blurRadius: 10.0)]),
-          child: RawMaterialButton(
-            onPressed: () => widget.model.updateGameStatus('stop'),
-            shape: CircleBorder(),
-            elevation: 1.0,
-            child: Text(
-              'STOP',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
-        Container(
-          width: 50.0,
-          height: 50.0,
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.teal,
-              boxShadow: [new BoxShadow(color: const Color(0x11000000), blurRadius: 10.0)]),
-          child: RawMaterialButton(
-            onPressed: widget.model.existsNextCategory
-                ? () {
-                    widget.model.addUserInput(
-                        widget.model.getActualCategory().actualCategory, _inputController.text);
-                    widget.model.setNextCategory();
-                  }
-                : null,
-            shape: CircleBorder(),
-            elevation: 1.0,
-            child: Icon(Icons.navigate_next, color: Colors.white),
-          ),
-        ),
+        RoundedButton.small(Colors.teal, _previousIcon(), _goPreviousCategory),
+        RoundedButton.big(Colors.red, _stopText(), _stopGame),
+        RoundedButton.small(Colors.teal, _nextIcon(), _goNextCategory),
       ]),
     );
   }
@@ -147,7 +130,7 @@ class StageCategoryState extends State<StageCategory> {
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
           appBar: AppBar(
-            title: Text('TUTI FLUTI'),
+            title: Text(Constants.TITLE),
           ),
           body: Container(
               child: Center(

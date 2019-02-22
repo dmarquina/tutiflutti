@@ -5,7 +5,6 @@ import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/page/review.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
-import 'package:tutiflutti/util/random_letter.dart';
 import 'package:tutiflutti/util/ui/rounded_button.dart';
 
 class FillingTimePage extends StatefulWidget {
@@ -21,14 +20,13 @@ class FillingTimePage extends StatefulWidget {
 
 class FillingTimePageState extends State<FillingTimePage> {
   final _inputController = TextEditingController();
-  String gameLetter = Constants.EMPTY_CHARACTER;
+  String actualCategory = '';
   StreamSubscription _subscriptionGameStatus;
 
   @override
   void initState() {
-    widget.model.updateGameLetter();
-    widget.model.gameLetter.then((letter) => gameLetter = letter);
-    widget.model.fetchCategories();
+    widget.model.getGameLetterFirebase();
+    actualCategory = widget.model.getActualCategory();
     widget.model
         .watchIfGameStatusStop(stopEveryone)
         .then((StreamSubscription s) => _subscriptionGameStatus = s);
@@ -42,8 +40,7 @@ class FillingTimePageState extends State<FillingTimePage> {
   }
 
   Widget _buildInputForm() {
-    final String actualCategoryText = widget.model.getActualCategory().actualCategory;
-    final String inputValueText = widget.model.getUserInput(actualCategoryText);
+    final String inputValueText = widget.model.getUserInput(actualCategory);
     _inputController.text = inputValueText != null ? inputValueText : Constants.EMPTY_CHARACTER;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -51,14 +48,13 @@ class FillingTimePageState extends State<FillingTimePage> {
         controller: _inputController,
         textInputAction: TextInputAction.go,
         onFieldSubmitted: (term) {
-          widget.model
-              .addUserInput(_inputController.text, widget.model.getActualCategory().actualCategory);
-          widget.model.setNextCategory();
+          widget.model.addUserInput(_inputController.text, widget.model.getActualCategory());
+          actualCategory = widget.model.getNextCategory();
         },
         textAlign: TextAlign.center,
         maxLength: 21,
         decoration: InputDecoration(
-          hintText: actualCategoryText,
+          hintText: actualCategory,
           hintStyle: new TextStyle(color: Colors.grey[600]),
           filled: true,
           fillColor: Colors.white,
@@ -73,28 +69,20 @@ class FillingTimePageState extends State<FillingTimePage> {
   }
 
   Function _goPreviousCategory() {
-    return widget.model.existsPrevCategory
-        ? () {
-            widget.model.addUserInput(
-                widget.model.getActualCategory().actualCategory, _inputController.text);
-            widget.model.setPreviousCategory();
-          }
-        : null;
+    return () {
+      widget.model.addUserInput(widget.model.getActualCategory(), _inputController.text);
+      actualCategory = widget.model.getPreviousCategory();
+    };
   }
 
   Function _goNextCategory() {
-    return widget.model.existsNextCategory
-        ? () {
-            widget.model.addUserInput(
-                widget.model.getActualCategory().actualCategory, _inputController.text);
-            widget.model.setNextCategory();
-          }
-        : null;
+    return () {
+      widget.model.addUserInput(widget.model.getActualCategory(), _inputController.text);
+      actualCategory = widget.model.getNextCategory();
+    };
   }
 
-  void _stopGame() {
-    widget.model.updateGameStatus(Constants.GAME_STATUS_STOP);
-  }
+  _stopGame() => widget.model.updateGameStatus(Constants.GAME_STATUS_STOP);
 
   Widget _previousIcon() => Icon(Icons.navigate_before, color: Colors.white);
 
@@ -106,16 +94,15 @@ class FillingTimePageState extends State<FillingTimePage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <Widget>[
-        RoundedButton.small(Colors.teal, _previousIcon(), _goPreviousCategory),
+        RoundedButton.small(Colors.teal, _previousIcon(), _goPreviousCategory()),
         RoundedButton.big(Colors.red, _stopText(), _stopGame),
-        RoundedButton.small(Colors.teal, _nextIcon(), _goNextCategory),
+        RoundedButton.small(Colors.teal, _nextIcon(), _goNextCategory()),
       ]),
     );
   }
 
-  void stopEveryone() {
-    widget.model
-        .addUserInput(widget.model.getActualCategory().actualCategory, _inputController.text);
+  stopEveryone() {
+    widget.model.addUserInput(actualCategory, _inputController.text);
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ReviewPage()));
   }
 
@@ -133,9 +120,9 @@ class FillingTimePageState extends State<FillingTimePage> {
             SizedBox(
               height: 50.0,
             ),
-            Text('${model.getActualCategory().actualCategory} que inicie con la letra: '),
+            Text('$actualCategory que inicie con la letra: '),
             Text(
-              gameLetter,
+              model.gameLetter,
               style: TextStyle(fontSize: 56.0),
             ),
             _buildInputForm(),

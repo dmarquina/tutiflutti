@@ -20,15 +20,7 @@ mixin GameDevelopmentModel on Model {
 
   setGameLetter(String gameLetter) => this._gameLetter = gameLetter;
 
-  Future<String> get gameLetter async{
-    if(this._gameLetter == ''){
-      DataSnapshot letter = await gameDatabase.child(_gameId).child('letter').once();
-      this._gameLetter = letter.value.toString();
-    }
-     return this._gameLetter;
-  }
-
-
+  String get gameLetter => this._gameLetter;
 
   DatabaseReference getAllGames() => gameDatabase;
 
@@ -45,20 +37,27 @@ mixin GameDevelopmentModel on Model {
       }
     });
     this.setGameId(newGame.key);
+    updateGameLetter();
   }
 
   addUserGame(String userId, String username) =>
       gameDatabase.child(_gameId).child('users').child(userId).set({'username': username});
 
-  /*TODO: Fix this :v */
-  updateGameLetter() async{
+  updateGameLetter() async {
     DataSnapshot missingLetters = await gameDatabase.child(_gameId).child('missing_letters').once();
-    Map<String, List<int>> randomLetter = RandomLetter.getRandomLetter(List<int>.from(missingLetters.value));
+    Map<String, List<int>> randomLetter =
+        RandomLetter.getRandomLetter(List<int>.from(missingLetters.value));
     await gameDatabase.child(_gameId).update({'letter': randomLetter.keys.first});
     await gameDatabase.child(_gameId).update({'missing_letters': randomLetter.values.first});
   }
 
   updateGameStatus(String status) => gameDatabase.child(_gameId).update({'status': status});
+
+  getGameLetterFirebase () async {
+    DataSnapshot letter = await gameDatabase.child(_gameId).child('letter').once();
+    this.setGameLetter(letter.value);
+    notifyListeners();
+  }
 
   Future<StreamSubscription<Event>> watchIfGameStatusInProgress(startGame) async {
     return gameDatabase.child(_gameId).onValue.listen((Event event) {

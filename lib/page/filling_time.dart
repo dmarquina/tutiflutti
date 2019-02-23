@@ -94,9 +94,10 @@ class FillingTimePageState extends State<FillingTimePage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <Widget>[
-        RoundedButton.small(Colors.teal, _previousIcon(), _goPreviousCategory()),
+        RoundedButton.small(
+            Colors.teal, _previousIcon(), _goPreviousCategory(), widget.model.disabledPrev),
         RoundedButton.big(Colors.red, _stopText(), _stopGame),
-        RoundedButton.small(Colors.teal, _nextIcon(), _goNextCategory()),
+        RoundedButton.small(Colors.teal, _nextIcon(), _goNextCategory(), widget.model.disabledNext),
       ]),
     );
   }

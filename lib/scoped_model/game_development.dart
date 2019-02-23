@@ -40,8 +40,11 @@ mixin GameDevelopmentModel on Model {
     updateGameLetter();
   }
 
-  addUserGame(String userId, String username) =>
-      gameDatabase.child(_gameId).child('users').child(userId).set({'username': username});
+  addUserGame(String userId, String username) => gameDatabase
+      .child(_gameId)
+      .child('users')
+      .child(userId)
+      .set({'username': username, 'score': 0});
 
   updateGameLetter() async {
     DataSnapshot missingLetters = await gameDatabase.child(_gameId).child('missing_letters').once();
@@ -53,7 +56,7 @@ mixin GameDevelopmentModel on Model {
 
   updateGameStatus(String status) => gameDatabase.child(_gameId).update({'status': status});
 
-  getGameLetterFirebase () async {
+  getGameLetterFirebase() async {
     DataSnapshot letter = await gameDatabase.child(_gameId).child('letter').once();
     this.setGameLetter(letter.value);
     notifyListeners();

@@ -3,13 +3,18 @@ import 'package:flutter/material.dart';
 class RoundedButton extends StatelessWidget {
   double _width;
   double _height;
-  final Color _color;
+  Color _color;
+  Function _onPressed;
+  bool _disabled;
   final Widget _child;
-  final Function _onPressed;
 
-  RoundedButton.small(this._color, this._child, this._onPressed) {
+  RoundedButton.small(this._color, this._child, this._onPressed, this._disabled) {
     _width = 50.0;
     _height = 50.0;
+    if (this._disabled) {
+      _onPressed = null;
+      _color = Colors.grey;
+    }
   }
 
   RoundedButton.big(this._color, this._child, this._onPressed) {

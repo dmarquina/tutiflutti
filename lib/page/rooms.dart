@@ -27,7 +27,7 @@ class RoomsPage extends StatelessWidget {
                   })),
           floatingActionButton: FloatingActionButton(
               onPressed: () {
-                model.startGame(model.userId, model.username);
+                model.createGame(model.userId, model.username);
                 Navigator.pushReplacementNamed(context, Constants.WAITING_ROOM_PATH);
               },
               child: Icon(Icons.add)));
@@ -35,12 +35,13 @@ class RoomsPage extends StatelessWidget {
   }
 
   Widget _buildRoomCard(MainModel model, DataSnapshot snapshot, BuildContext context) {
+    Map<String, dynamic> admin = Map<String, dynamic>.from(snapshot.value['administrator']);
     return Container(
       child: InkWell(
         child: Card(
           child: Container(
               padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
-              child: Text(snapshot.key)),
+              child: Text('creado por ${admin.values.first['username'].toString()}')),
           elevation: 3.0,
         ),
         onTap: () {

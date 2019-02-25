@@ -26,7 +26,13 @@ mixin GameDevelopmentModel on Model {
 
   DatabaseReference getAllGameUsers() => gameDatabase.child(_gameId).child('users');
 
-  startGame(String userId, String username) {
+  Future<Map<String,String>> getUserAdministrator(String gameId) async {
+    DataSnapshot administrator = await gameDatabase.child(gameId).child('administrator').once();
+    Map<String, dynamic> admin = Map<String, dynamic>.from(administrator.value);
+    return {admin.keys.first : admin.values.first['username'].toString()} ;
+  }
+
+  createGame(String userId, String username) {
     DatabaseReference newGame = gameDatabase.push();
     newGame.set({
       'administrator': {
@@ -41,6 +47,12 @@ mixin GameDevelopmentModel on Model {
     });
     this.setGameId(newGame.key);
     updateGameLetter();
+  }
+
+  startGame(String status) async {
+    Map<String,String> admin = await getUserAdministrator(_gameId);
+    await setReviewToUser(admin.keys.first, admin.values.first);
+    await updateGameStatus(status);
   }
 
   addUserGame(String userId, String username) => gameDatabase
@@ -65,7 +77,8 @@ mixin GameDevelopmentModel on Model {
     notifyListeners();
   }
 
-  setReviewUser(String userId, String username) async {
+  // El usuario no puede agregarse asimismo y buscamos añadir un reviewTo solo al que lo necesita
+  setReviewToUser(String userId, String username) async {
     DataSnapshot gameUsers = await getAllGameUsers().once();
     for (MapEntry<String, dynamic> user in Map<String, dynamic>.from(gameUsers.value).entries) {
       if (user.key != userId && user.value['reviewTo'] == null) {

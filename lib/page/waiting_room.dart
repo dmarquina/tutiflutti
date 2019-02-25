@@ -22,10 +22,11 @@ class WaitingRoomState extends State<WaitingRoom> {
 
   @override
   void initState() {
-
     widget._model
         .watchIfGameStatusInProgress(startGame)
         .then((StreamSubscription s) => _subscriptionGameStatus = s);
+    widget._model.setReviewUser(widget._model.userId, widget._model.username);
+
     super.initState();
   }
 

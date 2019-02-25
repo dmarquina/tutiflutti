@@ -29,6 +29,9 @@ mixin GameDevelopmentModel on Model {
   startGame(String userId, String username) {
     DatabaseReference newGame = gameDatabase.push();
     newGame.set({
+      'administrator': {
+        userId: {'username': username}
+      },
       'status': Constants.GAME_STATUS_WAITING,
       'letter': Constants.EMPTY_CHARACTER,
       'missing_letters': new List<int>.generate(25, (int index) => index + 65),
@@ -60,6 +63,20 @@ mixin GameDevelopmentModel on Model {
     DataSnapshot letter = await gameDatabase.child(_gameId).child('letter').once();
     this.setGameLetter(letter.value);
     notifyListeners();
+  }
+
+  setReviewUser(String userId, String username) async {
+    DataSnapshot gameUsers = await getAllGameUsers().once();
+    for (MapEntry<String, dynamic> user in Map<String, dynamic>.from(gameUsers.value).entries) {
+      if (user.key != userId && user.value['reviewTo'] == null) {
+        gameDatabase.child(_gameId).child('users').child(user.key).update({
+          'reviewTo': {
+            userId: {'username': username}
+          }
+        });
+        break;
+      }
+    }
   }
 
   Future<StreamSubscription<Event>> watchIfGameStatusInProgress(startGame) async {

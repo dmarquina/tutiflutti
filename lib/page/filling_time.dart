@@ -28,7 +28,7 @@ class FillingTimePageState extends State<FillingTimePage> {
     widget.model.getGameLetterFirebase();
     actualCategory = widget.model.getActualCategory();
     widget.model
-        .watchIfGameStatusStop(stopEveryone)
+        .watchIfGameStatusStop(widget.model.userId, stopEveryone)
         .then((StreamSubscription s) => _subscriptionGameStatus = s);
     super.initState();
   }
@@ -82,7 +82,9 @@ class FillingTimePageState extends State<FillingTimePage> {
     };
   }
 
-  _stopGame() => widget.model.updateGameStatus(Constants.GAME_STATUS_STOP);
+  _stopGame() {
+    widget.model.updateGameStatus(Constants.GAME_STATUS_STOP);
+  }
 
   Widget _previousIcon() => Icon(Icons.navigate_before, color: Colors.white);
 
@@ -104,6 +106,7 @@ class FillingTimePageState extends State<FillingTimePage> {
 
   stopEveryone() {
     widget.model.addUserInput(actualCategory, _inputController.text);
+    widget.model.saveUserInputs(widget.model.userId, widget.model.userInputs);
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ReviewPage()));
   }
 

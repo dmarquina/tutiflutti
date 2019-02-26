@@ -10,6 +10,7 @@ import 'package:tutiflutti/util/random_letter.dart';
 mixin GameDevelopmentModel on Model {
   String _gameId;
   String _gameLetter = '';
+  String _userToReviewId = '';
   List<Conflict> conflicts = [];
 
   final DatabaseReference gameDatabase = FirebaseReference.getReference('game');
@@ -22,14 +23,18 @@ mixin GameDevelopmentModel on Model {
 
   String get gameLetter => this._gameLetter;
 
+  setUserToReviewId(String userToReviewId) => this._userToReviewId = userToReviewId;
+
+  String get userToReviewId => this._userToReviewId;
+
   DatabaseReference getAllGames() => gameDatabase;
 
   DatabaseReference getAllGameUsers() => gameDatabase.child(_gameId).child('users');
 
-  Future<Map<String,String>> getUserAdministrator(String gameId) async {
+  Future<Map<String, String>> getUserAdministrator(String gameId) async {
     DataSnapshot administrator = await gameDatabase.child(gameId).child('administrator').once();
     Map<String, dynamic> admin = Map<String, dynamic>.from(administrator.value);
-    return {admin.keys.first : admin.values.first['username'].toString()} ;
+    return {admin.keys.first: admin.values.first['username'].toString()};
   }
 
   createGame(String userId, String username) {
@@ -46,13 +51,13 @@ mixin GameDevelopmentModel on Model {
       }
     });
     this.setGameId(newGame.key);
-    updateGameLetter();
+    this.updateGameLetter();
   }
 
   startGame(String status) async {
-    Map<String,String> admin = await getUserAdministrator(_gameId);
-    await setReviewToUser(admin.keys.first, admin.values.first);
-    await updateGameStatus(status);
+    Map<String, String> admin = await getUserAdministrator(_gameId);
+    await this.setReviewToUser(admin.keys.first, admin.values.first);
+    await this.updateGameStatus(status);
   }
 
   addUserGame(String userId, String username) => gameDatabase
@@ -92,6 +97,21 @@ mixin GameDevelopmentModel on Model {
     }
   }
 
+  getUserToReview(String userId) async {
+    DataSnapshot dataSnapshot =
+        await gameDatabase.child(_gameId).child('users').child(userId).child('reviewTo').once();
+    Map<String, dynamic> reviewTo = Map<String,dynamic>.from(dataSnapshot.value);
+    this.setUserToReviewId(reviewTo.keys.first);
+    print(reviewTo.keys.first);
+  }
+
+  Stream getUserInfo(String userId) =>
+      Stream.fromFuture(gameDatabase.child(_gameId).child('users').child(userId).once());
+
+  saveUserInputs(String userId, Map<String, String> inputs) {
+    gameDatabase.child(_gameId).child('users').child(userId).child('inputs').set(inputs);
+  }
+
   Future<StreamSubscription<Event>> watchIfGameStatusInProgress(startGame) async {
     return gameDatabase.child(_gameId).onValue.listen((Event event) {
       if (event.snapshot.value['status'] == Constants.GAME_STATUS_IN_PROGRESS) {
@@ -100,9 +120,10 @@ mixin GameDevelopmentModel on Model {
     });
   }
 
-  Future<StreamSubscription<Event>> watchIfGameStatusStop(stopEveryone) async {
+  Future<StreamSubscription<Event>> watchIfGameStatusStop(String userId, stopEveryone) async {
     return gameDatabase.child(_gameId).onValue.listen((Event event) {
       if (event.snapshot.value['status'] == Constants.GAME_STATUS_STOP) {
+        this.getUserToReview(userId);
         stopEveryone();
       }
     });

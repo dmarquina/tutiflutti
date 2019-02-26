@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:tutiflutti/model/user_input.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
 

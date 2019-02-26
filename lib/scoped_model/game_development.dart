@@ -37,9 +37,10 @@ mixin GameDevelopmentModel on Model {
     return {admin.keys.first: admin.values.first['username'].toString()};
   }
 
-  createGame(String userId, String username) {
+  createGame(String gameName, String userId, String username) {
     DatabaseReference newGame = gameDatabase.push();
     newGame.set({
+      'name': gameName,
       'administrator': {
         userId: {'username': username}
       },

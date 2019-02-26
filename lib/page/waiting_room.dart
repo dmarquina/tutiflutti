@@ -19,12 +19,18 @@ class WaitingRoom extends StatefulWidget {
 
 class WaitingRoomState extends State<WaitingRoom> {
   StreamSubscription _subscriptionGameStatus;
+  StreamSubscription _subscriptionCanStartGame;
+  bool _gameCanStart = false;
 
   @override
   void initState() {
     widget._model
         .watchIfGameStatusInProgress(startGame)
         .then((StreamSubscription s) => _subscriptionGameStatus = s);
+    widget._model
+        .watchIfGameCanStart(toggleGameCanStart)
+        .then((StreamSubscription s) => _subscriptionCanStartGame = s);
+
     widget._model.setReviewToUser(widget._model.userId, widget._model.username);
 
     super.initState();
@@ -33,6 +39,7 @@ class WaitingRoomState extends State<WaitingRoom> {
   @override
   void dispose() {
     _subscriptionGameStatus.cancel();
+    _subscriptionCanStartGame.cancel();
     super.dispose();
   }
 
@@ -72,9 +79,17 @@ class WaitingRoomState extends State<WaitingRoom> {
   }
 
   Widget _buildLetsPlayButton(MainModel model) {
-    return FlatButton(
-      onPressed: () => model.startGame(Constants.GAME_STATUS_IN_PROGRESS),
-      child: Text('¡A JUGAR!', style: TextStyle(color: Colors.white, fontSize: 20.0)),
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 20.0),
+      child: FlatButton(
+        onPressed: _gameCanStart ? () => model.startGame(Constants.GAME_STATUS_IN_PROGRESS) : null,
+        child: Text('¡A JUGAR!',
+            style: TextStyle(color: _gameCanStart ? Colors.white : Colors.grey, fontSize: 20.0)),
+      ),
     );
+  }
+
+  toggleGameCanStart(bool canStart) {
+    _gameCanStart = canStart;
   }
 }

@@ -100,7 +100,7 @@ mixin GameDevelopmentModel on Model {
   getUserToReview(String userId) async {
     DataSnapshot dataSnapshot =
         await gameDatabase.child(_gameId).child('users').child(userId).child('reviewTo').once();
-    Map<String, dynamic> reviewTo = Map<String,dynamic>.from(dataSnapshot.value);
+    Map<String, dynamic> reviewTo = Map<String, dynamic>.from(dataSnapshot.value);
     this.setUserToReviewId(reviewTo.keys.first);
     print(reviewTo.keys.first);
   }
@@ -110,6 +110,19 @@ mixin GameDevelopmentModel on Model {
 
   saveUserInputs(String userId, Map<String, String> inputs) {
     gameDatabase.child(_gameId).child('users').child(userId).child('inputs').set(inputs);
+  }
+
+  Future<StreamSubscription<Event>> watchIfGameCanStart(toggleGameCanStart) async {
+    return gameDatabase.child(_gameId).child('users').onValue.listen((Event event) {
+      if (event.snapshot.value != null) {
+        Map.from(event.snapshot.value).length > 1
+            ? toggleGameCanStart(true)
+            : toggleGameCanStart(false);
+      } else {
+        toggleGameCanStart(false);
+      }
+      notifyListeners();
+    });
   }
 
   Future<StreamSubscription<Event>> watchIfGameStatusInProgress(startGame) async {

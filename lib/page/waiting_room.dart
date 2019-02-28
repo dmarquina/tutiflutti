@@ -51,7 +51,7 @@ class WaitingRoomState extends State<WaitingRoom> {
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
           appBar: AppBar(
-            title: Text('SALA DE ESPERA'),
+            title: Text('Sala de espera'),
           ),
           body: Container(
             color: Colors.black87,

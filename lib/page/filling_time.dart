@@ -129,7 +129,7 @@ class FillingTimePageState extends State<FillingTimePage> {
               model.gameLetter,
               style: TextStyle(fontSize: 56.0),
             ),
-            _buildInputForm(),
+              _buildInputForm(),
             _buildActionButton()
           ]))));
     });

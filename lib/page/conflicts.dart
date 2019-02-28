@@ -4,37 +4,36 @@ import 'package:tutiflutti/model/conflict.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 
 class ConflictsPage extends StatelessWidget {
-  Widget fetchAnswers(MainModel model) {
-    List<Conflict> _conflicts = model.conflicts;
-    return Flexible(
-      child: ListView.builder(
-          itemBuilder: (BuildContext context, int index) {
-            return Dismissible(
-              key: Key('${_conflicts[0].userName}${_conflicts[0].category}${_conflicts[0].input}'),
-              direction: DismissDirection.horizontal,
-              onDismissed: (DismissDirection direction) {
-                if (direction == DismissDirection.startToEnd) {
-                } else if (direction == DismissDirection.endToStart) {}
-              },
-              background: Container(
-                color: Colors.green,
-                child: Icon(Icons.check_circle, color: Colors.white, size: 42.0),
-              ),
-              secondaryBackground: Container(
-                color: Colors.red,
-                child: Icon(Icons.cancel, color: Colors.white, size: 42.0),
-              ),
-              child: Column(children: <Widget>[
-                ListTile(title: Text(_conflicts[0].category), subtitle: Text(_conflicts[0].input)),
-                Divider(
-                  height: 2.0,
-                )
-              ]),
-            );
-          },
-          itemCount: _conflicts.length),
-    );
-  }
+//  Widget fetchAnswers(MainModel model) {
+//    return Flexible(
+//      child: ListView.builder(
+//          itemBuilder: (BuildContext context, int index) {
+//            return Dismissible(
+//              key: Key('${model.username}${categories[index]}${inputs[index]}'),
+//              direction: DismissDirection.horizontal,
+//              onDismissed: (DismissDirection direction) {
+//                if (direction == DismissDirection.startToEnd) {
+//                } else if (direction == DismissDirection.endToStart) {}
+//              },
+//              background: Container(
+//                color: Colors.green,
+//                child: Icon(Icons.check_circle, color: Colors.white, size: 42.0),
+//              ),
+//              secondaryBackground: Container(
+//                color: Colors.red,
+//                child: Icon(Icons.cancel, color: Colors.white, size: 42.0),
+//              ),
+//              child: Column(children: <Widget>[
+//                ListTile(title: Text(_conflicts[0].category), subtitle: Text(_conflicts[0].input)),
+//                Divider(
+//                  height: 2.0,
+//                )
+//              ]),
+//            );
+//          },
+//          itemCount: _conflicts.length),
+//    );
+//  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +41,7 @@ class ConflictsPage extends StatelessWidget {
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('CONFLICTOS'),
+          title: Text('Conflictos'),
         ),
         body: Container(
           child: Center(
@@ -52,7 +51,7 @@ class ConflictsPage extends StatelessWidget {
                   height: 50.0,
                 ),
                 Text(
-                  'A',
+                  model.gameLetter,
                   style: TextStyle(fontSize: 56.0),
                 ),
                 SizedBox(
@@ -65,7 +64,7 @@ class ConflictsPage extends StatelessWidget {
                 Divider(
                   height: 2.0,
                 ),
-                fetchAnswers(model),
+//                fetchAnswers(model),
               ],
             ),
           ),

@@ -12,6 +12,7 @@ mixin GameDevelopmentModel on Model {
   String _gameId;
   String _gameLetter = '';
   String _userToReviewId = '';
+  int _usersLength = 0;
   bool showProgressIndicator = true;
   List<Conflict> conflicts = [];
 
@@ -28,6 +29,10 @@ mixin GameDevelopmentModel on Model {
   setUserToReviewId(String userToReviewId) => this._userToReviewId = userToReviewId;
 
   String get userToReviewId => this._userToReviewId;
+
+  setUsersLength(int _usersLength) => this._usersLength = _usersLength;
+
+  int get usersLength => this._usersLength;
 
   DatabaseReference getAllGames() => gameDatabase;
 
@@ -58,9 +63,15 @@ mixin GameDevelopmentModel on Model {
   }
 
   startGame(String status) async {
+    DataSnapshot snapshot = await this.getUsersLength();
+    this.setReviewersLeft(snapshot.value.length);
     Map<String, String> admin = await getUserAdministrator(_gameId);
     await this.setReviewToUser(admin.keys.first, admin.values.first);
     await this.updateGameStatus(status);
+  }
+
+  getUsersLength() {
+    return getAllGameUsers().once();
   }
 
   addUserGame(String userId, String username) => gameDatabase
@@ -78,6 +89,9 @@ mixin GameDevelopmentModel on Model {
   }
 
   updateGameStatus(String status) => gameDatabase.child(_gameId).update({'status': status});
+
+  setReviewersLeft(int reviewersLeft) =>
+      gameDatabase.child(_gameId).update({'reviewersLeft': reviewersLeft});
 
   getGameLetterFirebase() async {
     DataSnapshot letter = await gameDatabase.child(_gameId).child('letter').once();
@@ -148,19 +162,21 @@ mixin GameDevelopmentModel on Model {
     }
   }
 
-  Future<void> insertNewGoodAnswer(String category, String answer, String userId) {
-    return gameDatabase.child(_gameId).child('goodAnswers').update({
-      category + answer: {'category': category, 'answer': answer, 'originalOwner': userId}
-    });
+  subtractOneReviewersLeft() async {
+    DataSnapshot snapshot = await gameDatabase.child(_gameId).child('reviewersLeft').once();
+    await gameDatabase.child(_gameId).update({'reviewersLeft': snapshot.value - 1});
   }
 
-  Future<void> updateOwnerGoodAnswer(String category, String answer, String userId) {
-    return gameDatabase
-        .child(_gameId)
-        .child('goodAnswers')
-        .child(category + answer)
-        .set({'category': category, 'answer': answer});
-  }
+  Future<void> insertNewGoodAnswer(String category, String answer, String userId) =>
+      gameDatabase.child(_gameId).child('goodAnswers').update({
+        category + answer: {'category': category, 'answer': answer, 'originalOwner': userId}
+      });
+
+  Future<void> updateOwnerGoodAnswer(String category, String answer, String userId) => gameDatabase
+      .child(_gameId)
+      .child('goodAnswers')
+      .child(category + answer)
+      .set({'category': category, 'answer': answer});
 
   updateUserScore(String userId, int score) async {
     DataSnapshot snapshot = await gameDatabase.child(_gameId).child('users').child(userId).once();
@@ -171,6 +187,21 @@ mixin GameDevelopmentModel on Model {
       'username': snapshot.value['username'],
       'score': newScore
     });
+  }
+
+  Map<String, String> getUserInputs(AsyncSnapshot snapshot) {
+    Map<String, String> response = {};
+    if (snapshot.data.value['inputs'] != null) {
+      response = Map.from(snapshot.data.value['inputs']);
+    }
+    if (snapshot.data.value['noInput'] != null) {
+      response = {};
+    }
+    if (snapshot.data.value['inputs'] == null && snapshot.data.value['noInput'] == null) {
+      return null;
+    }
+
+    return response;
   }
 
   Future<StreamSubscription<Event>> watchIfGameCanStart(toggleGameCanStart) async {
@@ -186,25 +217,18 @@ mixin GameDevelopmentModel on Model {
     });
   }
 
-  Map<String, String> getUserInputsToMap(AsyncSnapshot snapshot) {
-    Map<String, String> response = {};
-    if (snapshot.data.value['inputs'] != null) {
-      response = Map.from(snapshot.data.value['inputs']);
-    }
-    if (snapshot.data.value['noInput'] != null) {
-      response = {};
-    }
-    if (snapshot.data.value['inputs'] == null && snapshot.data.value['noInput'] == null) {
-      return null;
-    }
-
-    return response;
-  }
-
   Future<StreamSubscription<Event>> watchIfGameStatusInProgress(startGame) async {
     return gameDatabase.child(_gameId).onValue.listen((Event event) {
       if (event.snapshot.value['status'] == Constants.GAME_STATUS_IN_PROGRESS) {
         startGame();
+      }
+    });
+  }
+
+  Future<StreamSubscription<Event>> watchIfReviewIsOver(Function goConflicts) async {
+    return gameDatabase.child(_gameId).child('reviewersLeft').onValue.listen((Event event) {
+      if (event.snapshot.value == 0) {
+        goConflicts();
       }
     });
   }

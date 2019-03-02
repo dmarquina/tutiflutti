@@ -58,6 +58,7 @@ class ConflictsPage extends StatelessWidget {
                   height: 30.0,
                 ),
                 Text('¿Estas respuestas son correctas?'),
+                Text('HOOOOOOLI'),
                 SizedBox(
                   height: 30.0,
                 ),

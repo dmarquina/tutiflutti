@@ -178,6 +178,12 @@ mixin GameDevelopmentModel on Model {
       .child(category + answer)
       .set({'category': category, 'answer': answer});
 
+  Stream getConflicts() => Stream.fromFuture(gameDatabase.child(_gameId).child('conflicts').once());
+
+  Map<String, dynamic> getConflictsInputs(AsyncSnapshot snapshot) {
+    return Map.from(snapshot.data.value);
+  }
+
   updateUserScore(String userId, int score) async {
     DataSnapshot snapshot = await gameDatabase.child(_gameId).child('users').child(userId).once();
     int newScore = snapshot.value['score'] + score;

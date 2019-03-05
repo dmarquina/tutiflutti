@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:tutiflutti/page/review.dart';
+import 'package:tutiflutti/page/wait_inputs.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
 import 'package:tutiflutti/util/ui/rounded_button.dart';
@@ -22,6 +22,7 @@ class FillingTimePageState extends State<FillingTimePage> {
   final _inputController = TextEditingController();
   String actualCategory = '';
   StreamSubscription _subscriptionGameStatus;
+  BuildContext _context;
 
   @override
   void initState() {
@@ -107,11 +108,12 @@ class FillingTimePageState extends State<FillingTimePage> {
   stopEveryone() {
     widget.model.addUserInput(actualCategory, _inputController.text);
     widget.model.saveUserInputs(widget.model.userId, widget.model.userInputs);
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ReviewPage()));
+    Navigator.pushReplacementNamed(_context, Constants.WAIT_INPUT_PATH);
   }
 
   @override
   Widget build(BuildContext context) {
+    _context = context;
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
@@ -129,7 +131,7 @@ class FillingTimePageState extends State<FillingTimePage> {
               model.gameLetter,
               style: TextStyle(fontSize: 56.0),
             ),
-              _buildInputForm(),
+            _buildInputForm(),
             _buildActionButton()
           ]))));
     });

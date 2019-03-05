@@ -4,41 +4,6 @@ import 'package:tutiflutti/model/conflict.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 
 class ConflictsPage extends StatelessWidget {
-  Widget fetchAnswers(MainModel model) {
-    return StreamBuilder(
-        stream: model.getConflicts(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          Map<String, dynamic> conflicts = model.getConflictsInputs(snapshot);
-          int _itemCount = conflicts.length;
-          List conflictsList = conflicts.keys.toList();
-          return Flexible(
-              child: ListView.builder(
-                  itemBuilder: (BuildContext context, int index) {
-                    return Dismissible(
-                      key: Key('${model.userId}${conflicts[conflictsList[index]]['category']}${conflicts[conflictsList[index]]['answer']}'),
-                      direction: DismissDirection.horizontal,
-                      onDismissed: (DismissDirection direction) {
-                        if (direction == DismissDirection.startToEnd) {
-                        } else if (direction == DismissDirection.endToStart) {}
-                      },
-                      background: Container(
-                          color: Colors.green,
-                          child: Icon(Icons.check_circle, color: Colors.white, size: 42.0)),
-                      secondaryBackground: Container(
-                        color: Colors.red,
-                        child: Icon(Icons.cancel, color: Colors.white, size: 42.0),
-                      ),
-                      child: Column(children: <Widget>[
-                        ListTile(
-                            title: Text(conflicts[conflictsList[index]]['category']),
-                            subtitle: Text(conflicts[conflictsList[index]]['answer'])),
-                        Divider(height: 2.0)
-                      ]),
-                    );
-                  },
-                  itemCount: _itemCount));
-        });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,4 +31,46 @@ class ConflictsPage extends StatelessWidget {
       );
     });
   }
+
+  Widget fetchAnswers(MainModel model) {
+    return StreamBuilder(
+        stream: model.getConflicts(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            Map<String, dynamic> conflicts = model.getConflictsInputs(snapshot);
+            int _itemCount = conflicts.length;
+            List conflictsList = conflicts.keys.toList();
+            return Flexible(
+                child: ListView.builder(
+                    itemBuilder: (BuildContext context, int index) {
+                      return Dismissible(
+                        key: Key(
+                            '${model.userId}${conflicts[conflictsList[index]]['category']}${conflicts[conflictsList[index]]['answer']}'),
+                        direction: DismissDirection.horizontal,
+                        onDismissed: (DismissDirection direction) {
+                          if (direction == DismissDirection.startToEnd) {
+                          } else if (direction == DismissDirection.endToStart) {}
+                        },
+                        background: Container(
+                            color: Colors.green,
+                            child: Icon(Icons.check_circle, color: Colors.white, size: 42.0)),
+                        secondaryBackground: Container(
+                          color: Colors.red,
+                          child: Icon(Icons.cancel, color: Colors.white, size: 42.0),
+                        ),
+                        child: Column(children: <Widget>[
+                          ListTile(
+                              title: Text(conflicts[conflictsList[index]]['category']),
+                              subtitle: Text(conflicts[conflictsList[index]]['answer'])),
+                          Divider(height: 2.0)
+                        ]),
+                      );
+                    },
+                    itemCount: _itemCount));
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        });
+  }
+
 }

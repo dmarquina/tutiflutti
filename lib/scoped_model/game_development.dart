@@ -231,10 +231,32 @@ mixin GameDevelopmentModel on Model {
     });
   }
 
-  Future<StreamSubscription<Event>> watchIfReviewIsOver(Function goConflicts) async {
+  Future<StreamSubscription<Event>> watchIfInputsIsOver(Function goToReview, String userId) async {
+    DataSnapshot snapshot = await gameDatabase.child(_gameId).child('users').child(userId).once();
+    Map<String, dynamic> res = Map.from(snapshot.value['reviewTo']);
+    return gameDatabase
+        .child(_gameId)
+        .child('users')
+        .child(res.keys.first)
+        .onValue
+        .listen((Event event) {
+      if (event.snapshot.value['inputs'] != null || event.snapshot.value['noInput'] != null) {
+        goToReview();
+      }
+    });
+  }
+
+  Future<StreamSubscription<Event>> watchIfReviewIsOver(
+      Function goConflicts, Function goToScore) async {
     return gameDatabase.child(_gameId).child('reviewersLeft').onValue.listen((Event event) {
       if (event.snapshot.value == 0) {
-        goConflicts();
+        gameDatabase.child(_gameId).child('conflicts').once().then((conflicts) {
+          if (conflicts.value == null) {
+            goToScore();
+          } else {
+            goConflicts();
+          }
+        });
       }
     });
   }

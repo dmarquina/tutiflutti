@@ -79,11 +79,11 @@ class RoomsPage extends StatelessWidget {
               child: Column(children: <Widget>[
                 Text(
                   '${snapshot.value['name']}',
-                  style: TextStyle(fontSize: 20.0),
+                  style: TextStyle(fontSize: 20.0, color: Colors.white),
                 ),
                 SizedBox(height: 10.0),
                 Text('Creado por ${admin.values.first['username'].toString()}',
-                    style: TextStyle(fontSize: 10.0)),
+                    style: TextStyle(fontSize: 10.0, color: Colors.white)),
               ])),
           elevation: 3.0,
         ),

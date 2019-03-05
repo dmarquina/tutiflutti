@@ -4,30 +4,30 @@ import 'package:flutter/material.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
 
-class WaitReviewsPage extends StatefulWidget {
+class WaitInputsPage extends StatefulWidget {
   final MainModel _model;
 
-  WaitReviewsPage(this._model);
+  WaitInputsPage(this._model);
 
   @override
-  WaitReviewsPageState createState() => WaitReviewsPageState();
+  WaitInputsPageState createState() => WaitInputsPageState();
 }
 
-class WaitReviewsPageState extends State<WaitReviewsPage> {
-  StreamSubscription _subscriptionReviewIsOver;
+class WaitInputsPageState extends State<WaitInputsPage> {
+  StreamSubscription _subscriptionInputsIsOver;
   BuildContext _context;
 
   @override
   initState() {
     widget._model
-        .watchIfReviewIsOver(goToConflicts, goToScore)
-        .then((StreamSubscription s) => _subscriptionReviewIsOver = s);
+        .watchIfInputsIsOver(goToReview, widget._model.userId)
+        .then((StreamSubscription s) => _subscriptionInputsIsOver = s);
     super.initState();
   }
 
   @override
   void dispose() {
-    _subscriptionReviewIsOver.cancel();
+    _subscriptionInputsIsOver.cancel();
     super.dispose();
   }
 
@@ -44,14 +44,12 @@ class WaitReviewsPageState extends State<WaitReviewsPage> {
           children: <Widget>[
             CircularProgressIndicator(),
             SizedBox(height: 10.0),
-            Text('Esperando a la gentita :3')
+            Text('Esperando a la gente :3')
           ],
         ),
       ),
     );
   }
 
-  goToConflicts() => Navigator.pushReplacementNamed(_context, Constants.CONFLICTS_PATH);
-
-  goToScore() => Navigator.pushReplacementNamed(_context, Constants.SCORE_PATH);
+  goToReview() => Navigator.pushReplacementNamed(_context, Constants.REVIEW_PATH);
 }

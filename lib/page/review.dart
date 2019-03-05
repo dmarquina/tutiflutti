@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:tutiflutti/page/wait_reviews.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
+import 'package:tutiflutti/util/constants.dart';
 
 class ReviewPage extends StatelessWidget {
   String userIdToReview = '';
@@ -23,7 +23,7 @@ class ReviewPage extends StatelessWidget {
                   Map<String, String> userInputs = model.getUserInputs(snapshot);
                   return userInputs == null
                       ? CircularProgressIndicator()
-                      : _buildReview(model, userInputs, snapshot);
+                      : _buildReview(context, model, userInputs, snapshot);
                 }),
           ),
         ),
@@ -31,13 +31,14 @@ class ReviewPage extends StatelessWidget {
     });
   }
 
-  Widget _buildReview(MainModel model, Map<String, String> userInputs, AsyncSnapshot snapshot) {
+  Widget _buildReview(BuildContext context, MainModel model, Map<String, String> userInputs,
+      AsyncSnapshot snapshot) {
     return Column(
       children: <Widget>[
         _buildCheckUserInputsMessage(model, userInputs, snapshot),
         userInputs.isNotEmpty
             ? _buildListUserInputs(model, userInputs)
-            : _noInputsToCheckMessage(getUserToReview(snapshot)),
+            : _noInputsToCheckMessage(context, model, getUserToReview(snapshot)),
       ],
     );
   }
@@ -87,8 +88,7 @@ class ReviewPage extends StatelessWidget {
                 _itemCount--;
                 if (_itemCount == 0) {
                   model.subtractOneReviewersLeft();
-                  Navigator.pushReplacement(
-                      context, MaterialPageRoute(builder: (context) => WaitReviewsPage(model)));
+                  Navigator.pushReplacementNamed(context, Constants.WAIT_REVIEWS_PATH);
                 }
               },
               background: Container(
@@ -109,7 +109,7 @@ class ReviewPage extends StatelessWidget {
     );
   }
 
-  Widget _noInputsToCheckMessage(String username) {
+  Widget _noInputsToCheckMessage(BuildContext context, MainModel model, String username) {
     return Center(
       child: Column(children: <Widget>[
         SizedBox(height: 50.0),
@@ -126,7 +126,8 @@ class ReviewPage extends StatelessWidget {
         SizedBox(height: 20.0),
         FlatButton(
           onPressed: () {
-            print('Me voysh');
+            model.subtractOneReviewersLeft();
+            Navigator.pushReplacementNamed(context, Constants.WAIT_REVIEWS_PATH);
           },
           color: Colors.teal,
           child: Text('Continuar', style: TextStyle(color: Colors.white)),

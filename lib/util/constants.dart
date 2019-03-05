@@ -12,4 +12,9 @@ class Constants {
   static const String ROOMS_PATH = '/rooms';
   static const String WAITING_ROOM_PATH = '/waitingroom';
   static const String START_GAME_PATH = '/startgame';
+  static const String REVIEW_PATH = '/review';
+  static const String WAIT_REVIEWS_PATH = '/waitreviews';
+  static const String WAIT_INPUT_PATH = '/waitinput';
+  static const String CONFLICTS_PATH = '/conflicts';
+  static const String SCORE_PATH = '/score';
 }

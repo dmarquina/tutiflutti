@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
+import 'package:tutiflutti/util/ui/rounded_button.dart';
 
 class HomePage extends StatelessWidget {
   final _usernameController = TextEditingController();
+  MainModel _model;
+  BuildContext _context;
 
   @override
   Widget build(BuildContext context) {
+    _context = context;
     return Scaffold(
       appBar: AppBar(
         title: Text(Constants.TITLE),
@@ -26,6 +30,7 @@ class HomePage extends StatelessWidget {
             _buildInputUsername(),
             ScopedModelDescendant<MainModel>(
                 builder: (BuildContext context, Widget child, MainModel model) {
+              _model = model;
               return _buildSubmitButton(model, context);
             }),
           ],
@@ -56,19 +61,19 @@ class HomePage extends StatelessWidget {
 
   Widget _buildSubmitButton(MainModel model, BuildContext context) {
     return Container(
-        padding: EdgeInsets.symmetric(horizontal: 8.0),
+        padding: EdgeInsets.symmetric(horizontal: 12.0),
         child: Row(children: <Widget>[
           Expanded(
-            child: RaisedButton(
-              child: Text('INICIAR'),
-              onPressed: () {
-                model.createUser(_usernameController.text);
-                Navigator.pushReplacementNamed(context, Constants.ROOMS_PATH);
-              },
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-            ),
+            child: RoundedButton.big(Colors.teal, _readyText(), startGame),
           ),
         ]));
+  }
+
+  Widget _readyText() =>
+      Text('¡VAMOS!', style: TextStyle(color: Colors.white,fontSize: 18.0));
+
+  startGame() {
+    _model.createUser(_usernameController.text);
+    Navigator.pushReplacementNamed(_context, Constants.ROOMS_PATH);
   }
 }

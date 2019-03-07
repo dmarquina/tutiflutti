@@ -16,5 +16,6 @@ class Constants {
   static const String WAIT_REVIEWS_PATH = '/waitreviews';
   static const String WAIT_INPUT_PATH = '/waitinput';
   static const String CONFLICTS_PATH = '/conflicts';
+  static const String WAIT_SCORE_PATH = '/waitscore';
   static const String SCORE_PATH = '/score';
 }

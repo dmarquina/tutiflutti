@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/model/conflict.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
+import 'package:tutiflutti/util/constants.dart';
 
 class ConflictsPage extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(
@@ -43,13 +45,20 @@ class ConflictsPage extends StatelessWidget {
             return Flexible(
                 child: ListView.builder(
                     itemBuilder: (BuildContext context, int index) {
+                      String key =
+                          '${conflicts[conflictsList[index]]['category']}${conflicts[conflictsList[index]]['answer']}${conflicts[conflictsList[index]]['owner']}';
                       return Dismissible(
-                        key: Key(
-                            '${model.userId}${conflicts[conflictsList[index]]['category']}${conflicts[conflictsList[index]]['answer']}'),
+                        key: Key(key),
                         direction: DismissDirection.horizontal,
                         onDismissed: (DismissDirection direction) {
                           if (direction == DismissDirection.startToEnd) {
-                          } else if (direction == DismissDirection.endToStart) {}
+                            model.addOneSupportConflict(key);
+                          }
+                          _itemCount--;
+                          if (_itemCount == 0) {
+                            model.subtractOneConflictReviewersLeft();
+                            Navigator.pushReplacementNamed(context, Constants.WAIT_SCORE_PATH);
+                          }
                         },
                         background: Container(
                             color: Colors.green,
@@ -72,5 +81,4 @@ class ConflictsPage extends StatelessWidget {
           }
         });
   }
-
 }

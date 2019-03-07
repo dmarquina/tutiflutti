@@ -21,9 +21,7 @@ class ReviewPage extends StatelessWidget {
                 stream: model.getUserInfo(model.userToReviewId),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   Map<String, String> userInputs = model.getUserInputs(snapshot);
-                  return userInputs == null
-                      ? CircularProgressIndicator()
-                      : _buildReview(context, model, userInputs, snapshot);
+                  return _buildReview(context, model, userInputs, snapshot);
                 }),
           ),
         ),

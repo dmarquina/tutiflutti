@@ -75,11 +75,11 @@ class RoomsPage extends StatelessWidget {
         child: Card(
           color: RainbowColors.rainbowColor(index),
           child: Container(
-              padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+              padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
               child: Column(children: <Widget>[
                 Text(
                   '${snapshot.value['name']}',
-                  style: TextStyle(fontSize: 20.0, color: Colors.white),
+                  style: TextStyle(fontSize: 24.0, color: Colors.white),
                 ),
                 SizedBox(height: 10.0),
                 Text('Creado por ${admin.values.first['username'].toString()}',

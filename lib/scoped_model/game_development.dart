@@ -65,6 +65,7 @@ mixin GameDevelopmentModel on Model {
   startGame(String status) async {
     DataSnapshot snapshot = await this.getUsersLength();
     this.setReviewersLeft(snapshot.value.length);
+    this.setConflictReviewersLeft(snapshot.value.length);
     Map<String, String> admin = await getUserAdministrator(_gameId);
     await this.setReviewToUser(admin.keys.first, admin.values.first);
     await this.updateGameStatus(status);
@@ -92,6 +93,9 @@ mixin GameDevelopmentModel on Model {
 
   setReviewersLeft(int reviewersLeft) =>
       gameDatabase.child(_gameId).update({'reviewersLeft': reviewersLeft});
+
+  setConflictReviewersLeft(int conflictReviewersLeft) =>
+      gameDatabase.child(_gameId).update({'conflictReviewersLeft': conflictReviewersLeft});
 
   getGameLetterFirebase() async {
     DataSnapshot letter = await gameDatabase.child(_gameId).child('letter').once();
@@ -143,8 +147,8 @@ mixin GameDevelopmentModel on Model {
     DataSnapshot dataSnapshot =
         await gameDatabase.child(_gameId).child('goodAnswers').child(category + answer).once();
     if (dataSnapshot.value == null) {
+      insertNewGoodAnswer(category, answer, userId);
       updateUserScore(userId, 100);
-      await insertNewGoodAnswer(category, answer, userId);
     } else {
       if (dataSnapshot.value['category'] == category && dataSnapshot.value['answer'] == answer) {
         if (dataSnapshot.value['originalOwner'] != null) {
@@ -156,8 +160,8 @@ mixin GameDevelopmentModel on Model {
           updateUserScore(userId, 50);
         }
       } else {
+        insertNewGoodAnswer(category, answer, userId);
         updateUserScore(userId, 100);
-        await insertNewGoodAnswer(category, answer, userId);
       }
     }
   }
@@ -167,10 +171,15 @@ mixin GameDevelopmentModel on Model {
     await gameDatabase.child(_gameId).update({'reviewersLeft': snapshot.value - 1});
   }
 
-  Future<void> insertNewGoodAnswer(String category, String answer, String userId) =>
-      gameDatabase.child(_gameId).child('goodAnswers').update({
+  subtractOneConflictReviewersLeft() async {
+    DataSnapshot snapshot = await gameDatabase.child(_gameId).child('conflictReviewersLeft').once();
+    await gameDatabase.child(_gameId).update({'conflictReviewersLeft': snapshot.value - 1});
+  }
+
+  Future<void> insertNewGoodAnswer(String category, String answer, String userId) async{
+      await gameDatabase.child(_gameId).child('goodAnswers').update({
         category + answer: {'category': category, 'answer': answer, 'originalOwner': userId}
-      });
+      });}
 
   Future<void> updateOwnerGoodAnswer(String category, String answer, String userId) => gameDatabase
       .child(_gameId)
@@ -192,6 +201,18 @@ mixin GameDevelopmentModel on Model {
       'reviewTo': snapshot.value['reviewTo'],
       'username': snapshot.value['username'],
       'score': newScore
+    });
+  }
+
+  addOneSupportConflict(String conflictId) async {
+    DataSnapshot snapshot =
+        await gameDatabase.child(_gameId).child('conflicts').child(conflictId).once();
+    int newSupport = snapshot.value['support'] != null ? snapshot.value['support'] + 1 : 1;
+    await gameDatabase.child(_gameId).child('conflicts').child(conflictId).set({
+      'answer': snapshot.value['answer'],
+      'category': snapshot.value['category'],
+      'owner': snapshot.value['owner'],
+      'support': newSupport
     });
   }
 
@@ -224,9 +245,11 @@ mixin GameDevelopmentModel on Model {
   }
 
   Future<StreamSubscription<Event>> watchIfGameStatusInProgress(startGame) async {
-    return gameDatabase.child(_gameId).onValue.listen((Event event) {
+    return gameDatabase.child(_gameId).onValue.listen((Event event) async {
       if (event.snapshot.value['status'] == Constants.GAME_STATUS_IN_PROGRESS) {
         startGame();
+        DataSnapshot snapshot = await this.getUsersLength();
+        this.setUsersLength(snapshot.value.length);
       }
     });
   }
@@ -256,6 +279,23 @@ mixin GameDevelopmentModel on Model {
           } else {
             goConflicts();
           }
+        });
+      }
+    });
+  }
+
+  Future<StreamSubscription<Event>> watchIfConflictIsOver(Function goToScore, String userId) async {
+    return gameDatabase.child(_gameId).child('conflictReviewersLeft').onValue.listen((Event event) {
+      if (event.snapshot.value == 0) {
+        gameDatabase.child(_gameId).child('conflicts').once().then((conflicts) {
+          Map<String, dynamic> response = Map.from(conflicts.value);
+          response.forEach((String key, dynamic value) {
+            if (userId == value['owner'] &&
+                value['support'] != null &&
+                value['support'] > usersLength / 2) {
+              setGoodAnswers(value['category'], value['answer'], userId);
+            }
+          });
         });
       }
     });

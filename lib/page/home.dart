@@ -20,14 +20,10 @@ class HomePage extends StatelessWidget {
         margin: EdgeInsets.only(top: 100.0),
         child: Column(
           children: <Widget>[
-            Text(
-              'Ingresa tu usuario',
-              style: TextStyle(fontSize: 20.0),
-            ),
-            SizedBox(
-              height: 10.0,
-            ),
+            Text('Ingresa tu usuario', style: TextStyle(fontSize: 20.0)),
+            SizedBox(height: 10.0),
             _buildInputUsername(),
+            SizedBox(height: 10.0),
             ScopedModelDescendant<MainModel>(
                 builder: (BuildContext context, Widget child, MainModel model) {
               _model = model;
@@ -61,16 +57,14 @@ class HomePage extends StatelessWidget {
 
   Widget _buildSubmitButton(MainModel model, BuildContext context) {
     return Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.0),
         child: Row(children: <Widget>[
-          Expanded(
-            child: RoundedButton.big(Colors.teal, _readyText(), startGame),
-          ),
-        ]));
+      Expanded(
+        child: RoundedButton.big(Colors.teal, _readyText(), startGame),
+      ),
+    ]));
   }
 
-  Widget _readyText() =>
-      Text('¡VAMOS!', style: TextStyle(color: Colors.white,fontSize: 18.0));
+  Widget _readyText() => Text('¡VAMOS!', style: TextStyle(color: Colors.white, fontSize: 18.0));
 
   startGame() {
     _model.createUser(_usernameController.text);

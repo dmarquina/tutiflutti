@@ -53,5 +53,5 @@ class WaitReviewsPageState extends State<WaitReviewsPage> {
 
   goToConflicts() => Navigator.pushReplacementNamed(_context, Constants.CONFLICTS_PATH);
 
-  goToScore() => Navigator.pushReplacementNamed(_context, Constants.SCORE_PATH);
+  goToScore() => Navigator.pushReplacementNamed(_context, Constants.WAIT_SCORE_PATH);
 }

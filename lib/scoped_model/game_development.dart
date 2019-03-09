@@ -14,7 +14,7 @@ mixin GameDevelopmentModel on Model {
   String _userToReviewId = '';
   int _usersLength = 0;
   bool showProgressIndicator = true;
-  List<Conflict> conflicts = [];
+  int _conflictScore = 0;
 
   final DatabaseReference gameDatabase = FirebaseReference.getReference('game');
 
@@ -143,25 +143,48 @@ mixin GameDevelopmentModel on Model {
     });
   }
 
-  setGoodAnswers(String category, String answer, String userId) async {
+  Future<void> setGoodAnswers(String category, String answer, String userId) async {
     DataSnapshot dataSnapshot =
         await gameDatabase.child(_gameId).child('goodAnswers').child(category + answer).once();
     if (dataSnapshot.value == null) {
-      insertNewGoodAnswer(category, answer, userId);
       updateUserScore(userId, 100);
+      insertNewGoodAnswer(category, answer, userId);
     } else {
       if (dataSnapshot.value['category'] == category && dataSnapshot.value['answer'] == answer) {
         if (dataSnapshot.value['originalOwner'] != null) {
           String userIdOwner = dataSnapshot.value['originalOwner'];
           updateUserScore(userIdOwner, -50);
           updateUserScore(userId, 50);
-          await updateOwnerGoodAnswer(category, answer, userId);
+          updateOwnerGoodAnswer(category, answer, userId);
         } else {
           updateUserScore(userId, 50);
         }
       } else {
         insertNewGoodAnswer(category, answer, userId);
         updateUserScore(userId, 100);
+      }
+    }
+  }
+
+  Future<void> scoreConflicts(String category, String answer, String userId) async {
+    DataSnapshot dataSnapshot =
+        await gameDatabase.child(_gameId).child('goodAnswers').child(category + answer).once();
+    if (dataSnapshot.value == null) {
+      insertNewGoodAnswer(category, answer, userId);
+      _conflictScore += 100;
+    } else {
+      if (dataSnapshot.value['category'] == category && dataSnapshot.value['answer'] == answer) {
+        if (dataSnapshot.value['originalOwner'] != null) {
+          String userIdOwner = dataSnapshot.value['originalOwner'];
+          updateUserScore(userIdOwner, -50);
+          updateOwnerGoodAnswer(category, answer, userId);
+          _conflictScore += 50;
+        } else {
+          _conflictScore += 50;
+        }
+      } else {
+        insertNewGoodAnswer(category, answer, userId);
+        _conflictScore += 100;
       }
     }
   }
@@ -176,16 +199,18 @@ mixin GameDevelopmentModel on Model {
     await gameDatabase.child(_gameId).update({'conflictReviewersLeft': snapshot.value - 1});
   }
 
-  Future<void> insertNewGoodAnswer(String category, String answer, String userId) async{
-      await gameDatabase.child(_gameId).child('goodAnswers').update({
-        category + answer: {'category': category, 'answer': answer, 'originalOwner': userId}
-      });}
+  Future<void> insertNewGoodAnswer(String category, String answer, String userId) async {
+    await gameDatabase.child(_gameId).child('goodAnswers').update({
+      category + answer: {'category': category, 'answer': answer, 'originalOwner': userId}
+    });
+  }
 
-  Future<void> updateOwnerGoodAnswer(String category, String answer, String userId) => gameDatabase
-      .child(_gameId)
-      .child('goodAnswers')
-      .child(category + answer)
-      .set({'category': category, 'answer': answer});
+  Future<void> updateOwnerGoodAnswer(String category, String answer, String userId) async =>
+      await gameDatabase
+          .child(_gameId)
+          .child('goodAnswers')
+          .child(category + answer)
+          .set({'category': category, 'answer': answer});
 
   Stream getConflicts() => Stream.fromFuture(gameDatabase.child(_gameId).child('conflicts').once());
 
@@ -193,7 +218,7 @@ mixin GameDevelopmentModel on Model {
     return Map.from(snapshot.data.value);
   }
 
-  updateUserScore(String userId, int score) async {
+  Future<void> updateUserScore(String userId, int score) async {
     DataSnapshot snapshot = await gameDatabase.child(_gameId).child('users').child(userId).once();
     int newScore = snapshot.value['score'] + score;
     await gameDatabase.child(_gameId).child('users').child(userId).set({
@@ -287,13 +312,12 @@ mixin GameDevelopmentModel on Model {
   Future<StreamSubscription<Event>> watchIfConflictIsOver(Function goToScore, String userId) async {
     return gameDatabase.child(_gameId).child('conflictReviewersLeft').onValue.listen((Event event) {
       if (event.snapshot.value == 0) {
-        gameDatabase.child(_gameId).child('conflicts').once().then((conflicts) {
-          Map<String, dynamic> response = Map.from(conflicts.value);
-          response.forEach((String key, dynamic value) {
+        gameDatabase.child(_gameId).child('conflicts').once().then((conflicts) async {
+          await Future.forEach(Map.from(conflicts.value).values, (value) async {
             if (userId == value['owner'] &&
                 value['support'] != null &&
                 value['support'] > usersLength / 2) {
-              setGoodAnswers(value['category'], value['answer'], userId);
+              await this.setGoodAnswers(value['category'], value['answer'], userId);
             }
           });
         });

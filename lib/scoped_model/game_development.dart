@@ -166,29 +166,6 @@ mixin GameDevelopmentModel on Model {
     }
   }
 
-  Future<void> scoreConflicts(String category, String answer, String userId) async {
-    DataSnapshot dataSnapshot =
-        await gameDatabase.child(_gameId).child('goodAnswers').child(category + answer).once();
-    if (dataSnapshot.value == null) {
-      insertNewGoodAnswer(category, answer, userId);
-      _conflictScore += 100;
-    } else {
-      if (dataSnapshot.value['category'] == category && dataSnapshot.value['answer'] == answer) {
-        if (dataSnapshot.value['originalOwner'] != null) {
-          String userIdOwner = dataSnapshot.value['originalOwner'];
-          updateUserScore(userIdOwner, -50);
-          updateOwnerGoodAnswer(category, answer, userId);
-          _conflictScore += 50;
-        } else {
-          _conflictScore += 50;
-        }
-      } else {
-        insertNewGoodAnswer(category, answer, userId);
-        _conflictScore += 100;
-      }
-    }
-  }
-
   subtractOneReviewersLeft() async {
     DataSnapshot snapshot = await gameDatabase.child(_gameId).child('reviewersLeft').once();
     await gameDatabase.child(_gameId).update({'reviewersLeft': snapshot.value - 1});
@@ -256,6 +233,11 @@ mixin GameDevelopmentModel on Model {
     return response;
   }
 
+  Stream<DataSnapshot> getScoreBoard() {
+    return Stream.fromFuture(gameDatabase.child(_gameId).child('users').once());
+    ;
+  }
+
   Future<StreamSubscription<Event>> watchIfGameCanStart(toggleGameCanStart) async {
     return gameDatabase.child(_gameId).child('users').onValue.listen((Event event) {
       if (event.snapshot.value != null) {
@@ -320,6 +302,7 @@ mixin GameDevelopmentModel on Model {
               await this.setGoodAnswers(value['category'], value['answer'], userId);
             }
           });
+          goToScore();
         });
       }
     });

@@ -49,7 +49,7 @@ class MyAppState extends State<MyApp> {
             Constants.WAIT_REVIEWS_PATH: (BuildContext context) => WaitReviewsPage(_model),
             Constants.CONFLICTS_PATH: (BuildContext context) => ConflictsPage(),
             Constants.WAIT_SCORE_PATH: (BuildContext context) => WaitScorePage(_model),
-            Constants.SCORE_PATH: (BuildContext context) => ScorePage(),
+            Constants.SCORE_PATH: (BuildContext context) => ScorePage(_model),
           },
         ));
   }

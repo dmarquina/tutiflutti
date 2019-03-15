@@ -14,7 +14,7 @@ class ConflictsPage extends StatelessWidget {
           child: Center(
             child: Column(
               children: <Widget>[
-                SizedBox(height: 50.0),
+                SizedBox(height: 30.0),
                 Text(model.gameLetter, style: TextStyle(fontSize: 56.0)),
                 SizedBox(
                   height: 30.0,

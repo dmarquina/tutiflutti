@@ -26,30 +26,27 @@ class ScorePageState extends State<ScorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Puntaje')),
-      body: StreamBuilder(
-          stream: widget._model.getScoreBoard(),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.hasData) {
-              Map<dynamic, dynamic> userInputs = Map.from(snapshot.data.value);
-              List<dynamic> userInfoSorted = userInputs.values.toList();
-              userInfoSorted.sort((a, b) => b['score'] - a['score']);
-              return Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                _buildUserInfoScores(userInfoSorted),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 32.0),
-                  child: FlatButton(
-                      child: Text('¡Jugar de nuevo!', style: TextStyle(color: Colors.white)),
-                      onPressed: () =>
-                          Navigator.pushReplacementNamed(context, Constants.ROOMS_PATH),
-                      color: Colors.teal),
-                )
-              ]);
-            } else {
-              return CircularProgressIndicator();
-            }
-          }),
-    );
+        appBar: AppBar(title: Text('Puntaje')),
+        body: StreamBuilder(
+            stream: widget._model.getScoreBoard(),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.hasData) {
+                Map<dynamic, dynamic> userInputs = Map.from(snapshot.data.value);
+                List<dynamic> userInfoSorted = userInputs.values.toList();
+                userInfoSorted.sort((a, b) => b['score'] - a['score']);
+                return SingleChildScrollView(
+                  child:
+                      Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                    _buildUserInfoScores(userInfoSorted),
+                  ]),
+                );
+              } else {
+                return CircularProgressIndicator();
+              }
+            }),
+        floatingActionButton: FloatingActionButton(
+            onPressed: () => Navigator.pushReplacementNamed(context, Constants.ROOMS_PATH),
+            child: Icon(Icons.play_arrow)));
   }
 
   Widget _buildUserInfoScores(List<dynamic> userInfoSorted) {
@@ -65,14 +62,13 @@ class ScorePageState extends State<ScorePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-//                            Text((userInfoSorted.indexOf(userInfo) + 1).toString()),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(userInfo['username'],
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 18.0,
+                                        fontSize: 20.0,
                                         color: Colors.black)),
                                 SizedBox(height: 4.0),
                                 _buildInputs(userInfo)
@@ -94,14 +90,23 @@ class ScorePageState extends State<ScorePage> {
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: inputs
-                .map<dynamic, String>((key, value) => MapEntry(key, '$key: $value'))
+                .map<dynamic, String>((key, value) => MapEntry(key, '$key%%%$value'))
                 .values
                 .toList()
-                .map((value) => Text(
-                      value,
-                      style: TextStyle(color: Colors.black),
-                    ))
-                .toList())
+                .map((value) {
+              List<String> keyValue = value.split('%%%');
+              return RichText(
+                text: TextSpan(style: TextStyle(color: Colors.black),children: [
+                  TextSpan(
+                    text: '${keyValue.elementAt(0)}: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: keyValue.elementAt(1),
+                  )
+                ]),
+              );
+            }).toList())
         : Text('No ingreso nada');
   }
 }

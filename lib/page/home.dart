@@ -26,14 +26,16 @@ class HomePageState extends State<HomePage> {
       ),
       body: Container(
         margin: EdgeInsets.only(top: 100.0),
-        child: Column(
-          children: <Widget>[
-            Text('Ingresa tu usuario', style: TextStyle(fontSize: 20.0)),
-            SizedBox(height: 10.0),
-            _buildInputUsername(),
-            SizedBox(height: 10.0),
-            _buildSubmitButton(widget._model, context)
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Text('Ingresa tu usuario', style: TextStyle(fontSize: 20.0)),
+              SizedBox(height: 10.0),
+              _buildInputUsername(),
+              SizedBox(height: 10.0),
+              _buildSubmitButton(widget._model, context)
+            ],
+          ),
         ),
       ),
     );
@@ -72,6 +74,6 @@ class HomePageState extends State<HomePage> {
 
   startGame() {
     widget._model.createUpdateUser(usernameController.text);
-    Navigator.pushNamed(_context, Constants.ROOMS_PATH);
+    Navigator.pushReplacementNamed(_context, Constants.ROOMS_PATH);
   }
 }

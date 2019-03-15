@@ -8,7 +8,7 @@ class RainbowColors {
     Color color = Colors.black;
     switch (i) {
       case 0:
-        color = Colors.red;
+        color = Colors.red[400];
         break;
       case 1:
         color = Colors.orange;
@@ -17,16 +17,16 @@ class RainbowColors {
         color = Colors.yellowAccent[700];
         break;
       case 3:
-        color = Colors.green;
+        color = Colors.green[400];
         break;
       case 4:
-        color = Colors.blue;
+        color = Colors.blue[400];
         break;
       case 5:
-        color = Colors.indigo;
+        color = Colors.indigo[300];
         break;
       case 6:
-        color = Colors.purple;
+        color = Colors.purple[300];
         break;
     }
     return color;

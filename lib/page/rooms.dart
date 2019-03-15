@@ -15,6 +15,13 @@ class RoomsPage extends StatelessWidget {
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
           appBar: AppBar(
+            actions: <Widget>[
+              IconButton(
+                  icon: Icon(Icons.person),
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, Constants.HOME_PATH);
+                  }),
+            ],
             title: Text('Salas de TutiFlutti'),
           ),
           body: Container(

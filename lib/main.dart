@@ -33,7 +33,7 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return ScopedModel<MainModel>(
         model: _model,
-        child: MaterialApp(
+        child:  MaterialApp(
           title: Constants.TITLE,
           debugShowCheckedModeBanner: false,
           theme: ThemeData(

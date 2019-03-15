@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
@@ -21,7 +22,7 @@ class WaitScorePageState extends State<WaitScorePage> {
   @override
   initState() {
     widget._model
-        .watchIfConflictIsOver(goToScore,widget._model.userId)
+        .watchIfConflictIsOver(goToScore, widget._model.userId)
         .then((StreamSubscription s) => _subscriptionConflictReviewIsOver = s);
     super.initState();
   }
@@ -39,13 +40,19 @@ class WaitScorePageState extends State<WaitScorePage> {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
-        appBar: AppBar(title: Text(Constants.TITLE)),
+        appBar: Theme.of(context).platform == TargetPlatform.iOS
+            ? CupertinoNavigationBar(
+                middle: Text(Constants.TITLE, style: TextStyle(color: Colors.white)),
+                backgroundColor: Colors.teal)
+            : AppBar(title: Text(Constants.TITLE)),
         body: Container(
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                CircularProgressIndicator(),
+                Theme.of(context).platform == TargetPlatform.iOS
+                    ? CupertinoActivityIndicator()
+                    : CircularProgressIndicator(),
                 SizedBox(height: 10.0),
                 Text('Preparando el puntaje...')
               ],

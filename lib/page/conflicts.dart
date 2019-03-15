@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
@@ -74,7 +75,10 @@ class ConflictsPage extends StatelessWidget {
                     },
                     itemCount: _itemCount));
           } else {
-            return Center(child: CircularProgressIndicator());
+            return Center(
+                child: Theme.of(context).platform == TargetPlatform.iOS
+                    ? CupertinoActivityIndicator()
+                    : CircularProgressIndicator());
           }
         });
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
@@ -12,7 +13,12 @@ class ReviewPage extends StatelessWidget {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
-        appBar: AppBar(
+        appBar: Theme.of(context).platform == TargetPlatform.iOS
+            ? CupertinoNavigationBar(
+
+            middle: Text('Revisión', style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.teal)
+            : AppBar(
           title: Text('Revisión'),
         ),
         body: Container(

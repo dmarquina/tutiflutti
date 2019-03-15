@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
@@ -42,7 +43,9 @@ class WaitInputsPageState extends State<WaitInputsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            CircularProgressIndicator(),
+            Theme.of(context).platform == TargetPlatform.iOS
+                ? CupertinoActivityIndicator()
+                : CircularProgressIndicator(),
             SizedBox(height: 10.0),
             Text('Esperando a la gente :3')
           ],

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
@@ -21,9 +22,11 @@ class HomePageState extends State<HomePage> {
     usernameController.text = widget._model.username;
     _context = context;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(Constants.TITLE),
-      ),
+      appBar: Theme.of(context).platform == TargetPlatform.iOS
+          ? CupertinoNavigationBar(
+              middle: Text(Constants.TITLE, style: TextStyle(color: Colors.white)),
+              backgroundColor: Colors.teal)
+          : AppBar(title: Text(Constants.TITLE)),
       body: Container(
         margin: EdgeInsets.only(top: 100.0),
         child: SingleChildScrollView(

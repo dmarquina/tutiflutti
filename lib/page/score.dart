@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/model/conflict.dart';
@@ -41,7 +42,9 @@ class ScorePageState extends State<ScorePage> {
                   ]),
                 );
               } else {
-                return CircularProgressIndicator();
+                return Theme.of(context).platform == TargetPlatform.iOS
+                    ? CupertinoActivityIndicator()
+                    : CircularProgressIndicator();
               }
             }),
         floatingActionButton: FloatingActionButton(
@@ -96,7 +99,7 @@ class ScorePageState extends State<ScorePage> {
                 .map((value) {
               List<String> keyValue = value.split('%%%');
               return RichText(
-                text: TextSpan(style: TextStyle(color: Colors.black),children: [
+                text: TextSpan(style: TextStyle(color: Colors.black), children: [
                   TextSpan(
                     text: '${keyValue.elementAt(0)}: ',
                     style: TextStyle(fontWeight: FontWeight.bold),

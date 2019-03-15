@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
@@ -14,16 +15,32 @@ class RoomsPage extends StatelessWidget {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
-          appBar: AppBar(
-            actions: <Widget>[
-              IconButton(
-                  icon: Icon(Icons.person),
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, Constants.HOME_PATH);
-                  }),
-            ],
-            title: Text('Salas de TutiFlutti'),
-          ),
+          appBar: Theme.of(context).platform == TargetPlatform.iOS
+              ? CupertinoNavigationBar(
+                  backgroundColor: Colors.teal,
+                  middle: Text(
+                    Constants.TITLE,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  trailing: IconButton(
+                      icon: Icon(
+                        Icons.person_outline,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, Constants.HOME_PATH);
+                      }),
+                )
+              : AppBar(
+                  actions: <Widget>[
+                    IconButton(
+                        icon: Icon(Icons.person),
+                        onPressed: () {
+                          Navigator.pushReplacementNamed(context, Constants.HOME_PATH);
+                        }),
+                  ],
+                  title: Text('Salas de TutiFlutti'),
+                ),
           body: Container(
               child: FirebaseAnimatedList(
                   query: model.getAllGames(),
@@ -47,31 +64,59 @@ class RoomsPage extends StatelessWidget {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Nombre del juego'),
-            content: Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: TextField(
-                  controller: _gameNameController,
-                  maxLength: 25,
-                )),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('Cancelar'),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              FlatButton(
-                child: Text('Guardar'),
-                onPressed: () {
-                  model.createGame(_gameNameController.text, model.userId, model.username);
-                  Navigator.pop(context);
-                  Navigator.pushReplacementNamed(context, Constants.WAITING_ROOM_PATH);
-                },
-              )
-            ],
-          );
+          return Theme.of(context).platform == TargetPlatform.iOS
+              ? CupertinoAlertDialog(
+                  title: Text('Nombre del juego'),
+                  content: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: CupertinoTextField(
+                        controller: _gameNameController,
+                        maxLength: 25,
+                      )),
+                  actions: <Widget>[
+                    CupertinoDialogAction(
+                      child: Text('Cancelar'),
+                      isDestructiveAction: true,
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    CupertinoDialogAction(
+                      child: Text('Guardar'),
+                      isDefaultAction: true,
+                      onPressed: () {
+                        model.createGame(_gameNameController.text, model.userId, model.username);
+                        Navigator.pop(context);
+                        Navigator.pushReplacementNamed(context, Constants.WAITING_ROOM_PATH);
+                      },
+                    )
+                  ],
+                )
+              : AlertDialog(
+                  title: Text('Nombre del juego'),
+                  content: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: TextField(
+                        controller: _gameNameController,
+                        maxLength: 25,
+                      )),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Cancelar'),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    FlatButton(
+                      child: Text('Guardar'),
+                      onPressed: () {
+                        model.createGame(_gameNameController.text, model.userId, model.username);
+                        Navigator.pop(context);
+                        Navigator.pushReplacementNamed(context, Constants.WAITING_ROOM_PATH);
+                      },
+                    )
+                  ],
+                );
         });
   }
 

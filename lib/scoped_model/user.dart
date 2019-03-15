@@ -16,10 +16,14 @@ mixin UserModel on Model {
 
   String get username => _username;
 
-  createUser(String username) async {
+  createUpdateUser(String username) async {
     this.setUsername(username);
-    DatabaseReference newUser = userDatabase.push();
-    newUser.set({'username': username});
-    this.setUserId(newUser.key);
+    if (_userId != '') {
+      DatabaseReference newUser = userDatabase.push();
+      newUser.set({'username': username});
+      this.setUserId(newUser.key);
+    } else {
+      userDatabase.child(_userId).update({'username': username});
+    }
   }
 }

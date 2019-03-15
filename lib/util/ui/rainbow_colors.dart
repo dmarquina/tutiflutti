@@ -14,7 +14,7 @@ class RainbowColors {
         color = Colors.orange;
         break;
       case 2:
-        color = Colors.yellow;
+        color = Colors.yellowAccent[700];
         break;
       case 3:
         color = Colors.green;

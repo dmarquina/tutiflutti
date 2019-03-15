@@ -20,4 +20,9 @@ mixin UserInputModel on Model {
     });
     return response;
   }
+
+
+  void resetInputs(){
+    _userInputs = {};
+  }
 }

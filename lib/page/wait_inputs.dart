@@ -51,5 +51,9 @@ class WaitInputsPageState extends State<WaitInputsPage> {
     );
   }
 
-  goToReview() => Navigator.pushReplacementNamed(_context, Constants.REVIEW_PATH);
+  goToReview() {
+    Timer(Duration(seconds: 2), () {
+      Navigator.pushReplacementNamed(_context, Constants.REVIEW_PATH);
+    });
+  }
 }

@@ -40,7 +40,7 @@ class MyAppState extends State<MyApp> {
             primarySwatch: Colors.teal,
           ),
           routes: {
-            Constants.HOME_PATH: (BuildContext context) => HomePage(),
+            Constants.HOME_PATH: (BuildContext context) => HomePage(_model),
             Constants.ROOMS_PATH: (BuildContext context) => RoomsPage(),
             Constants.WAITING_ROOM_PATH: (BuildContext context) => WaitingRoom(_model),
             Constants.START_GAME_PATH: (BuildContext context) => FillingTimePage(_model),

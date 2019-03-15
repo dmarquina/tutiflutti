@@ -31,4 +31,10 @@ mixin CategoryModel on Model {
     notifyListeners();
     return _categories[_categoryIndex];
   }
+
+  resetCategories() {
+    _categoryIndex = 0;
+    disabledPrev = true;
+    disabledNext = false;
+  }
 }

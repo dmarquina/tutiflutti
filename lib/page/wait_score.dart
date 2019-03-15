@@ -39,7 +39,7 @@ class WaitScorePageState extends State<WaitScorePage> {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
-        appBar: AppBar(title: Text('Espere...')),
+        appBar: AppBar(title: Text(Constants.TITLE)),
         body: Container(
           child: Center(
             child: Column(
@@ -57,7 +57,7 @@ class WaitScorePageState extends State<WaitScorePage> {
   }
 
   goToScore() {
-    Timer(Duration(seconds: 5), () {
+    Timer(Duration(seconds: 3), () {
       Navigator.pushReplacementNamed(_context, Constants.SCORE_PATH);
     });
   }

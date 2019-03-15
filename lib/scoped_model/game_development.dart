@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:tutiflutti/model/conflict.dart';
 import 'package:tutiflutti/util/constants.dart';
 import 'package:tutiflutti/util/firebase_child_reference.dart';
 import 'package:tutiflutti/util/random_letter.dart';
@@ -14,7 +13,6 @@ mixin GameDevelopmentModel on Model {
   String _userToReviewId = '';
   int _usersLength = 0;
   bool showProgressIndicator = true;
-  int _conflictScore = 0;
 
   final DatabaseReference gameDatabase = FirebaseReference.getReference('game');
 
@@ -220,23 +218,21 @@ mixin GameDevelopmentModel on Model {
 
   Map<String, String> getUserInputs(AsyncSnapshot snapshot) {
     Map<String, String> response = {};
-    if (snapshot.data.value['inputs'] != null) {
-      response = Map.from(snapshot.data.value['inputs']);
+    if (snapshot.data?.value['inputs'] != null) {
+      response = Map.from(snapshot.data?.value['inputs']);
     }
-    if (snapshot.data.value['noInput'] != null) {
+    if (snapshot.data?.value['noInput'] != null) {
       response = {};
     }
-    if (snapshot.data.value['inputs'] == null && snapshot.data.value['noInput'] == null) {
+    if (snapshot.data?.value['inputs'] == null && snapshot.data?.value['noInput'] == null) {
       return null;
     }
 
     return response;
   }
 
-  Stream<DataSnapshot> getScoreBoard() {
-    return Stream.fromFuture(gameDatabase.child(_gameId).child('users').once());
-    ;
-  }
+  Stream<DataSnapshot> getScoreBoard() =>
+      Stream.fromFuture(gameDatabase.child(_gameId).child('users').once());
 
   Future<StreamSubscription<Event>> watchIfGameCanStart(toggleGameCanStart) async {
     return gameDatabase.child(_gameId).child('users').onValue.listen((Event event) {

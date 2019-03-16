@@ -19,7 +19,7 @@ class RoomsPage extends StatelessWidget {
               ? CupertinoNavigationBar(
                   backgroundColor: Colors.teal,
                   middle: Text(
-                    Constants.TITLE,
+                    'Salas',
                     style: TextStyle(color: Colors.white),
                   ),
                   trailing: IconButton(
@@ -39,7 +39,7 @@ class RoomsPage extends StatelessWidget {
                           Navigator.pushReplacementNamed(context, Constants.HOME_PATH);
                         }),
                   ],
-                  title: Text('Salas de TutiFlutti'),
+                  title: Text('Salas'),
                 ),
           body: Container(
               child: FirebaseAnimatedList(

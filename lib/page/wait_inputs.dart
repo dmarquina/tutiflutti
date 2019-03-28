@@ -47,7 +47,7 @@ class WaitInputsPageState extends State<WaitInputsPage> {
                 ? CupertinoActivityIndicator()
                 : CircularProgressIndicator(),
             SizedBox(height: 10.0),
-            Text('Esperando a la gente :3')
+            Text('Esperando a la gente')
           ],
         ),
       ),

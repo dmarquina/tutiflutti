@@ -66,9 +66,13 @@ class ConflictsPage extends StatelessWidget {
                         },
                         background: Container(
                             color: Colors.green,
+                            alignment: Alignment.centerLeft,
+                            padding: EdgeInsets.only(left: 10.0),
                             child: Icon(Icons.check, color: Colors.white, size: 30.0)),
                         secondaryBackground: Container(
                           color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          padding: EdgeInsets.only(right: 10.0),
                           child: Icon(Icons.clear, color: Colors.white, size: 30.0),
                         ),
                         child: Column(children: <Widget>[

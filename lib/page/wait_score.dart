@@ -54,7 +54,7 @@ class WaitScorePageState extends State<WaitScorePage> {
                     ? CupertinoActivityIndicator()
                     : CircularProgressIndicator(),
                 SizedBox(height: 10.0),
-                Text('Preparando el puntaje...')
+                Text('Calculando el puntaje...')
               ],
             ),
           ),

@@ -190,7 +190,9 @@ mixin GameDevelopmentModel on Model {
   Stream getConflicts() => Stream.fromFuture(gameDatabase.child(_gameId).child('conflicts').once());
 
   Map<String, dynamic> getConflictsInputs(AsyncSnapshot snapshot) {
-    return Map.from(snapshot.data.value);
+    Map<String, dynamic> conflicts = Map.from(snapshot.data.value);
+    conflicts.removeWhere((k, v) => v['owner'] == userToReviewId);
+    return conflicts;
   }
 
   Future<void> updateUserScore(String userId, int score) async {

@@ -51,7 +51,7 @@ class WaitReviewsPageState extends State<WaitReviewsPage> {
                 ? CupertinoActivityIndicator()
                 : CircularProgressIndicator(),
             SizedBox(height: 10.0),
-            Text('Esperando a la gentita :3')
+            Text('Esperando la revisión de los demás...')
           ],
         ),
       ),

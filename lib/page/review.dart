@@ -15,12 +15,11 @@ class ReviewPage extends StatelessWidget {
       return Scaffold(
         appBar: Theme.of(context).platform == TargetPlatform.iOS
             ? CupertinoNavigationBar(
-
-            middle: Text('Revisión', style: TextStyle(color: Colors.white)),
-            backgroundColor: Colors.teal)
+                middle: Text('Revisión', style: TextStyle(color: Colors.white)),
+                backgroundColor: Colors.teal)
             : AppBar(
-          title: Text('Revisión'),
-        ),
+                title: Text('Revisión'),
+              ),
         body: Container(
           child: Center(
             child: StreamBuilder(
@@ -54,9 +53,9 @@ class ReviewPage extends StatelessWidget {
         : Container(
             child: Column(
             children: <Widget>[
-              SizedBox(height: 30.0),
+              SizedBox(height: 20.0),
               Text(model.gameLetter, style: TextStyle(fontSize: 56.0)),
-              SizedBox(height: 30.0),
+              SizedBox(height: 20.0),
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(style: TextStyle(color: Colors.black), children: [
@@ -67,10 +66,40 @@ class ReviewPage extends StatelessWidget {
                   )
                 ]),
               ),
-              SizedBox(height: 30.0),
+              SizedBox(height: 20.0),
+              _buildLegend(),
+              SizedBox(height: 10.0),
               Divider(height: 2.0)
             ],
           ));
+  }
+
+  Widget _buildLegend() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5.0),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+        Row(
+          children: <Widget>[
+            Icon(Icons.arrow_back, color: Colors.red),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 2.0),
+              child: Text('Incorrecto', style: TextStyle(color: Colors.red)),
+            ),
+            Icon(Icons.clear, color: Colors.red)
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Icon(Icons.check, color: Colors.green),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 2.0),
+              child: Text('Correcto', style: TextStyle(color: Colors.green)),
+            ),
+            Icon(Icons.arrow_forward, color: Colors.green)
+          ],
+        )
+      ]),
+    );
   }
 
   Widget _buildListUserInputs(MainModel model, Map<String, String> userInputs) {
@@ -96,12 +125,16 @@ class ReviewPage extends StatelessWidget {
                 }
               },
               background: Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.only(left: 10.0),
                 color: Colors.green,
-                child: Icon(Icons.check_circle, color: Colors.white, size: 42.0),
+                child: Icon(Icons.check, color: Colors.white, size: 30.0),
               ),
               secondaryBackground: Container(
+                alignment: Alignment.centerRight,
+                padding: EdgeInsets.only(right: 10.0),
                 color: Colors.red,
-                child: Icon(Icons.cancel, color: Colors.white, size: 42.0),
+                child: Icon(Icons.clear, color: Colors.white, size: 30.0),
               ),
               child: Column(children: <Widget>[
                 ListTile(title: Text(categories[index]), subtitle: Text(inputs[index])),

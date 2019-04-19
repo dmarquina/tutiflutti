@@ -15,14 +15,20 @@ class ConflictsPage extends StatelessWidget {
           child: Center(
             child: Column(
               children: <Widget>[
-                SizedBox(height: 30.0),
+                SizedBox(height: 20.0),
                 Text(model.gameLetter, style: TextStyle(fontSize: 56.0)),
                 SizedBox(
-                  height: 30.0,
+                  height: 20.0,
                 ),
-                Text('¿Estas respuestas son correctas?'),
-                SizedBox(height: 30.0),
-                Divider(height: 2.0),
+                Container(padding: EdgeInsets.symmetric(horizontal: 5.0),
+                  child: Text(
+                      'Confirma si estas palabras son correctas o no',
+                      textAlign: TextAlign.center),
+                ),
+                SizedBox(height: 20.0),
+                _buildLegend(),
+                SizedBox(height: 10.0),
+                Divider(height: 0.0),
                 fetchAnswers(model)
               ],
             ),
@@ -60,10 +66,10 @@ class ConflictsPage extends StatelessWidget {
                         },
                         background: Container(
                             color: Colors.green,
-                            child: Icon(Icons.check_circle, color: Colors.white, size: 42.0)),
+                            child: Icon(Icons.check, color: Colors.white, size: 30.0)),
                         secondaryBackground: Container(
                           color: Colors.red,
-                          child: Icon(Icons.cancel, color: Colors.white, size: 42.0),
+                          child: Icon(Icons.clear, color: Colors.white, size: 30.0),
                         ),
                         child: Column(children: <Widget>[
                           ListTile(
@@ -81,5 +87,31 @@ class ConflictsPage extends StatelessWidget {
                     : CircularProgressIndicator());
           }
         });
+  }
+
+  Widget _buildLegend() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5.0),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+        Row(
+          children: <Widget>[
+            Icon(Icons.arrow_back, color: Colors.red),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 2.0),
+              child: Text('Incorrecto', style: TextStyle(color: Colors.red)),
+            )
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 2.0),
+              child: Text('Correcto', style: TextStyle(color: Colors.green)),
+            ),
+            Icon(Icons.arrow_forward, color: Colors.green)
+          ],
+        )
+      ]),
+    );
   }
 }

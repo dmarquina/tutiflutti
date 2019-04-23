@@ -20,9 +20,9 @@ class ConflictsPage extends StatelessWidget {
                 SizedBox(
                   height: 20.0,
                 ),
-                Container(padding: EdgeInsets.symmetric(horizontal: 5.0),
-                  child: Text(
-                      'Confirma si estas palabras son correctas o no',
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 5.0),
+                  child: Text('Confirma si estas palabras son correctas o no',
                       textAlign: TextAlign.center),
                 ),
                 SizedBox(height: 20.0),
@@ -43,8 +43,26 @@ class ConflictsPage extends StatelessWidget {
         stream: model.getConflicts(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
-            Map<String, dynamic> conflicts = model.getConflictsInputs(snapshot);
+            Map<String, dynamic> conflicts = model.getConflictsInputs(snapshot,model.userId);
             int _itemCount = conflicts.length;
+            if (_itemCount == 0) {
+              return Center(
+                child: Column(
+                    children: <Widget>[
+                      SizedBox(height: 50.0),
+                      Text('No tienes conflictos por revisar'),
+                      SizedBox(height: 10.0),
+                      RaisedButton(
+                        child: Text('Continuar', style: TextStyle(color: Colors.white)),
+                        color: Colors.teal,
+                        onPressed: () {
+                          model.subtractOneConflictReviewersLeft();
+                          Navigator.pushReplacementNamed(context, Constants.WAIT_SCORE_PATH);
+                        },
+                      )
+                    ]),
+              );
+            }
             List conflictsList = conflicts.keys.toList();
             return Flexible(
                 child: ListView.builder(

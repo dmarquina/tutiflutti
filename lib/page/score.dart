@@ -89,15 +89,19 @@ class ScorePageState extends State<ScorePage> {
 
   Widget _buildInputs(dynamic userInfo) {
     Map inputs = userInfo['inputs'] != null ? Map.from(userInfo['inputs']) : {};
+
+    Map<dynamic, dynamic> inputsReviewed = checkInputsReviewed(userInfo['inputsReviewed']);
+    const String INPUTS_KEY_VALUE_SEPARATOR = '%%%';
     return inputs.isNotEmpty
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: inputs
-                .map<dynamic, String>((key, value) => MapEntry(key, '$key%%%$value'))
+                .map<dynamic, String>(
+                    (key, value) => MapEntry(key, '$key$INPUTS_KEY_VALUE_SEPARATOR$value'))
                 .values
                 .toList()
                 .map((value) {
-              List<String> keyValue = value.split('%%%');
+              List<String> keyValue = value.split(INPUTS_KEY_VALUE_SEPARATOR);
               return RichText(
                 text: TextSpan(style: TextStyle(color: Colors.black), children: [
                   TextSpan(
@@ -105,11 +109,19 @@ class ScorePageState extends State<ScorePage> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   TextSpan(
-                    text: keyValue.elementAt(1),
-                  )
+                      text: keyValue.elementAt(1),
+                      style: TextStyle(
+                          color: inputsReviewed['${keyValue.elementAt(0)}'] != null
+                              ? Colors.green
+                              : Colors.red))
                 ]),
               );
             }).toList())
-        : Text('No ingreso nada');
+        : Text('No ingresó nada');
+  }
+
+  Map<dynamic, dynamic> checkInputsReviewed(dynamic inputsRev) {
+    Map<dynamic, dynamic> inputsReviewed = inputsRev != null ? inputsRev : {};
+    return inputsReviewed;
   }
 }

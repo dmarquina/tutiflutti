@@ -51,7 +51,7 @@ mixin GameDevelopmentModel on Model {
       },
       'status': Constants.GAME_STATUS_WAITING,
       'letter': Constants.EMPTY_CHARACTER,
-      'missing_letters': new List<int>.generate(25, (int index) => index + 65),
+      'missing_letters': Constants.calcInitialMissingLettersList(),
       'users': {
         userId: {'username': username, 'score': 0}
       },
@@ -136,30 +136,49 @@ mixin GameDevelopmentModel on Model {
   }
 
   insertNewConflicts(String category, String answer, String userId) async {
-    await gameDatabase.child(_gameId).child('conflicts').update({
-      category + answer + userId: {'category': category, 'answer': answer, 'owner': userId}
-    });
+    DataSnapshot dataSnapshot =
+        await gameDatabase.child(_gameId).child('conflicts').child(category + answer).once();
+    if (dataSnapshot.value != null) {
+      Map<dynamic, dynamic> owners = dataSnapshot.value['owners'];
+      owners[userId] = userId;
+      await gameDatabase.child(_gameId).child('conflicts').child(category + answer).update({
+        'category': dataSnapshot.value['category'],
+        'answer': dataSnapshot.value['answer'],
+        'owners': owners
+      });
+    } else {
+      await gameDatabase.child(_gameId).child('conflicts').update({
+        category + answer: {
+          'category': category,
+          'answer': answer,
+          'owners': {userId: userId}
+        }
+      });
+    }
   }
 
   Future<void> setGoodAnswers(String category, String answer, String userId) async {
     DataSnapshot dataSnapshot =
         await gameDatabase.child(_gameId).child('goodAnswers').child(category + answer).once();
     if (dataSnapshot.value == null) {
-      updateUserScore(userId, 100);
+      updateUserScoreAndInputsReviewed(userId, Constants.POINTS_FOR_GOOD_ANSWER, category);
       insertNewGoodAnswer(category, answer, userId);
     } else {
       if (dataSnapshot.value['category'] == category && dataSnapshot.value['answer'] == answer) {
         if (dataSnapshot.value['originalOwner'] != null) {
           String userIdOwner = dataSnapshot.value['originalOwner'];
-          updateUserScore(userIdOwner, -50);
-          updateUserScore(userId, 50);
+          updateUserScoreAndInputsReviewed(
+              userIdOwner, Constants.NEGATIVE_POINTS_FOR_GOOD_REPEATED_ANSWER, category);
+          updateUserScoreAndInputsReviewed(
+              userId, Constants.POINTS_FOR_REPEATED_GOOD_ANSWER, category);
           updateOwnerGoodAnswer(category, answer, userId);
         } else {
-          updateUserScore(userId, 50);
+          updateUserScoreAndInputsReviewed(
+              userId, Constants.POINTS_FOR_REPEATED_GOOD_ANSWER, category);
         }
       } else {
         insertNewGoodAnswer(category, answer, userId);
-        updateUserScore(userId, 100);
+        updateUserScoreAndInputsReviewed(userId, Constants.POINTS_FOR_GOOD_ANSWER, category);
       }
     }
   }
@@ -189,21 +208,35 @@ mixin GameDevelopmentModel on Model {
 
   Stream getConflicts() => Stream.fromFuture(gameDatabase.child(_gameId).child('conflicts').once());
 
-  Map<String, dynamic> getConflictsInputs(AsyncSnapshot snapshot) {
+  Map<String, dynamic> getConflictsInputs(AsyncSnapshot snapshot, String userId) {
     Map<String, dynamic> conflicts = Map.from(snapshot.data.value);
-    conflicts.removeWhere((k, v) => v['owner'] == userToReviewId);
+    conflicts
+        .removeWhere((k, v) => v['owners'][userToReviewId] != null || v['owners'][userId] != null);
     return conflicts;
   }
 
-  Future<void> updateUserScore(String userId, int score) async {
+  Future<void> updateUserScoreAndInputsReviewed(String userId, int score, String category) async {
     DataSnapshot snapshot = await gameDatabase.child(_gameId).child('users').child(userId).once();
     int newScore = snapshot.value['score'] + score;
+
+    if (score != Constants.NEGATIVE_POINTS_FOR_GOOD_REPEATED_ANSWER) {
+      snapshot.value['inputsReviewed'] =
+          checkInputsReviewed(snapshot.value['inputsReviewed'], score, category);
+    }
+
     await gameDatabase.child(_gameId).child('users').child(userId).set({
       'inputs': snapshot.value['inputs'],
       'reviewTo': snapshot.value['reviewTo'],
       'username': snapshot.value['username'],
-      'score': newScore
+      'score': newScore,
+      'inputsReviewed': snapshot.value['inputsReviewed']
     });
+  }
+
+  dynamic checkInputsReviewed(dynamic inputsRev, int score, String category) {
+    Map<dynamic, dynamic> inputsReviewed = inputsRev != null ? inputsRev : {};
+    inputsReviewed[category] = 'green';
+    return inputsReviewed;
   }
 
   addOneSupportConflict(String conflictId) async {
@@ -213,7 +246,7 @@ mixin GameDevelopmentModel on Model {
     await gameDatabase.child(_gameId).child('conflicts').child(conflictId).set({
       'answer': snapshot.value['answer'],
       'category': snapshot.value['category'],
-      'owner': snapshot.value['owner'],
+      'owners': snapshot.value['owners'],
       'support': newSupport
     });
   }
@@ -290,13 +323,21 @@ mixin GameDevelopmentModel on Model {
   }
 
   Future<StreamSubscription<Event>> watchIfConflictIsOver(Function goToScore, String userId) async {
+    int myOwnSupport = 1;
     return gameDatabase.child(_gameId).child('conflictReviewersLeft').onValue.listen((Event event) {
       if (event.snapshot.value == 0) {
         gameDatabase.child(_gameId).child('conflicts').once().then((conflicts) async {
           await Future.forEach(Map.from(conflicts.value).values, (value) async {
-            if (userId == value['owner'] &&
+            DataSnapshot ds = await gameDatabase
+                .child(_gameId)
+                .child('goodAnswers')
+                .child('${value['category']}${value['answer']}')
+                .once();
+            if (ds.value != null && value['owners'][userId] != null) {
+              await this.setGoodAnswers(value['category'], value['answer'], userId);
+            } else if (value['owners'][userId] != null &&
                 value['support'] != null &&
-                value['support'] > usersLength / 2) {
+                value['support'] > (usersLength / 2) + myOwnSupport) {
               await this.setGoodAnswers(value['category'], value['answer'], userId);
             }
           });

@@ -84,13 +84,11 @@ class ReviewPage extends StatelessWidget {
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 2.0),
               child: Text('Incorrecto', style: TextStyle(color: Colors.red)),
-            ),
-            Icon(Icons.clear, color: Colors.red)
+            )
           ],
         ),
         Row(
           children: <Widget>[
-            Icon(Icons.check, color: Colors.green),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 2.0),
               child: Text('Correcto', style: TextStyle(color: Colors.green)),

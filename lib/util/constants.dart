@@ -1,7 +1,7 @@
 class Constants {
-
   static const String TITLE = 'TUTI FLUTTI';
   static const String EMPTY_CHARACTER = '';
+
   // GAME STATUS
   static const String GAME_STATUS_WAITING = 'waiting';
   static const String GAME_STATUS_IN_PROGRESS = 'inprogress';
@@ -18,4 +18,16 @@ class Constants {
   static const String CONFLICTS_PATH = '/conflicts';
   static const String WAIT_SCORE_PATH = '/waitscore';
   static const String SCORE_PATH = '/score';
+
+  //SCORES
+  static const int POINTS_FOR_GOOD_ANSWER = 100;
+  static const int POINTS_FOR_REPEATED_GOOD_ANSWER = 50;
+  static const int NEGATIVE_POINTS_FOR_GOOD_REPEATED_ANSWER = -50;
+
+  static List<int> calcInitialMissingLettersList() {
+    int alphabeticLettersNumber = 25;
+    int indexHexAlphabeticLetters = 65;
+    return new List<int>.generate(
+        alphabeticLettersNumber, (int index) => index + indexHexAlphabeticLetters);
+  }
 }

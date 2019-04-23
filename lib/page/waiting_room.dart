@@ -83,7 +83,7 @@ class WaitingRoomState extends State<WaitingRoom> {
       padding: EdgeInsets.symmetric(vertical: 20.0),
       child: FlatButton(
         onPressed: _gameCanStart ? () => model.startGame(Constants.GAME_STATUS_IN_PROGRESS) : null,
-        child: Text('¡A JUGAR!',
+        child: Text(_gameCanStart ? '¡A JUGAR!' : 'ESPEREMOS',
             style: TextStyle(color: _gameCanStart ? Colors.white : Colors.grey, fontSize: 20.0)),
       ),
     );

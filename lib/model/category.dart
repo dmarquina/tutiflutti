@@ -4,6 +4,4 @@ class Category {
   final String nextCategory;
 
   Category({this.actualCategory, this.previousCategory, this.nextCategory});
-
-
 }

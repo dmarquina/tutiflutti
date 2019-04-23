@@ -12,9 +12,9 @@ class Constants {
   static const String ROOMS_PATH = '/rooms';
   static const String WAITING_ROOM_PATH = '/waitingroom';
   static const String START_GAME_PATH = '/startgame';
+  static const String WAIT_INPUT_PATH = '/waitinput';
   static const String REVIEW_PATH = '/review';
   static const String WAIT_REVIEWS_PATH = '/waitreviews';
-  static const String WAIT_INPUT_PATH = '/waitinput';
   static const String CONFLICTS_PATH = '/conflicts';
   static const String WAIT_SCORE_PATH = '/waitscore';
   static const String SCORE_PATH = '/score';
@@ -24,6 +24,7 @@ class Constants {
   static const int POINTS_FOR_REPEATED_GOOD_ANSWER = 50;
   static const int NEGATIVE_POINTS_FOR_GOOD_REPEATED_ANSWER = -50;
 
+  //UTIL METHODS
   static List<int> calcInitialMissingLettersList() {
     int alphabeticLettersNumber = 25;
     int indexHexAlphabeticLetters = 65;

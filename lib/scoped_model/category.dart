@@ -1,8 +1,20 @@
 import 'package:scoped_model/scoped_model.dart';
 
 mixin CategoryModel on Model {
-  List<String> _categories =
-      List.from(['Nombre', 'Apellido', 'País', 'Color', 'Animal', 'Canción', 'Cantante']);
+  List<String> _categories = List.from([
+    'Nombre',
+    'Apellido',
+    'Color',
+    'Animal',
+    'Canción',
+    'País',
+    'Marca',
+    'Cosa',
+    'Fruta',
+    'Cantante',
+    'Película',
+    'Famoso'
+  ]);
   int _categoryIndex = 0;
   bool disabledPrev = true;
   bool disabledNext = false;

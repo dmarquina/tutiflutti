@@ -131,7 +131,16 @@ class FillingTimePageState extends State<FillingTimePage> {
               SizedBox(
                 height: 50.0,
               ),
-              Text('$actualCategory que inicie con la letra: '),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(style: TextStyle(color: Colors.black), children: [
+                  TextSpan(
+                    text: '$actualCategory ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(text: 'que inicie con la letra: ')
+                ]),
+              ),
               Text(
                 model.gameLetter,
                 style: TextStyle(fontSize: 56.0),

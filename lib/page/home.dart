@@ -26,7 +26,7 @@ class HomePageState extends State<HomePage> {
           ? CupertinoNavigationBar(
               middle: Text(Constants.TITLE, style: TextStyle(color: Colors.white)),
               backgroundColor: Colors.teal)
-          : AppBar(title: Text(Constants.TITLE)),
+          : AppBar(title: Text(Constants.TITLE), centerTitle: true),
       body: Container(
         margin: EdgeInsets.only(top: 100.0),
         child: SingleChildScrollView(
@@ -68,15 +68,15 @@ class HomePageState extends State<HomePage> {
     return Container(
         child: Row(children: <Widget>[
       Expanded(
-        child: RoundedButton.big(Colors.teal, _readyText(), startGame),
+        child: RoundedButton.big(Colors.teal, _readyText(), searchGames),
       ),
     ]));
   }
 
   Widget _readyText() => Text('¡VAMOS!', style: TextStyle(color: Colors.white, fontSize: 18.0));
 
-  startGame() {
+  searchGames() {
     widget._model.createUpdateUser(usernameController.text);
-    Navigator.pushReplacementNamed(_context, Constants.ROOMS_PATH);
+    Navigator.pushNamed(_context, Constants.ROOMS_PATH);
   }
 }

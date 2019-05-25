@@ -1,5 +1,5 @@
 class Constants {
-  static const String TITLE = 'TUTI FRUTTI';
+  static const String TITLE = 'TUTTI FRUTTI';
   static const String EMPTY_CHARACTER = '';
 
   // GAME STATUS

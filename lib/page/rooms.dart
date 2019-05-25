@@ -3,6 +3,7 @@ import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:tutiflutti/page/waiting_room.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
 import 'package:tutiflutti/util/ui/rainbow_colors.dart';
@@ -16,31 +17,8 @@ class RoomsPage extends StatelessWidget {
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
           appBar: Theme.of(context).platform == TargetPlatform.iOS
-              ? CupertinoNavigationBar(
-                  backgroundColor: Colors.teal,
-                  middle: Text(
-                    'Salas',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  trailing: IconButton(
-                      icon: Icon(
-                        Icons.person_outline,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, Constants.HOME_PATH);
-                      }),
-                )
-              : AppBar(
-                  actions: <Widget>[
-                    IconButton(
-                        icon: Icon(Icons.person),
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, Constants.HOME_PATH);
-                        }),
-                  ],
-                  title: Text('Salas'),
-                ),
+              ? CupertinoNavigationBar(middle: Text('Salas'))
+              : AppBar(title: Text('Salas'), centerTitle: true),
           body: Container(
               child: FirebaseAnimatedList(
                   query: model.getAllGames(),
@@ -142,7 +120,11 @@ class RoomsPage extends StatelessWidget {
         onTap: () {
           model.setGameId(snapshot.key);
           model.addUserGame(model.userId, model.username);
-          Navigator.pushReplacementNamed(context, Constants.WAITING_ROOM_PATH);
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      WaitingRoom(model, title: snapshot.value['name'].toString())));
         },
       ),
     );

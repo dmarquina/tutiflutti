@@ -49,7 +49,7 @@ class ConflictsPage extends StatelessWidget {
               return Center(
                 child: Column(children: <Widget>[
                   SizedBox(height: 50.0),
-                  Text('No tienes conflictos por revisar'),
+                  Text('No hay conflictos por revisar'),
                   SizedBox(height: 10.0),
                   RaisedButton(
                     child: Text('Continuar', style: TextStyle(color: Colors.white)),

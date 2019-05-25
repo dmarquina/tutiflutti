@@ -36,6 +36,8 @@ mixin GameDevelopmentModel on Model {
 
   DatabaseReference getAllGameUsers() => gameDatabase.child(_gameId).child('users');
 
+  DatabaseReference getGameChat() => gameDatabase.child(_gameId).child('chat');
+
   Future<Map<String, String>> getUserAdministrator(String gameId) async {
     DataSnapshot administrator = await gameDatabase.child(gameId).child('administrator').once();
     Map<String, dynamic> admin = Map<String, dynamic>.from(administrator.value);
@@ -51,6 +53,7 @@ mixin GameDevelopmentModel on Model {
       },
       'status': Constants.GAME_STATUS_WAITING,
       'letter': Constants.EMPTY_CHARACTER,
+      'chat': Constants.EMPTY_CHARACTER,
       'missing_letters': Constants.calcInitialMissingLettersList(),
       'users': {
         userId: {'username': username, 'score': 0}
@@ -205,6 +208,14 @@ mixin GameDevelopmentModel on Model {
           .child('goodAnswers')
           .child(category + answer)
           .set({'category': category, 'answer': answer});
+
+  Future<void> sendMessage(String message, String username) async {
+    await gameDatabase
+        .child(_gameId)
+        .child('chat')
+        .push()
+        .set({'message': message, 'username': username});
+  }
 
   Stream getConflicts() => Stream.fromFuture(gameDatabase.child(_gameId).child('conflicts').once());
 

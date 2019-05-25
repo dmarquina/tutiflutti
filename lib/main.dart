@@ -33,12 +33,15 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return ScopedModel<MainModel>(
         model: _model,
-        child:  MaterialApp(
+        child: MaterialApp(
           title: Constants.TITLE,
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            primarySwatch: Colors.teal,
-          ),
+              scaffoldBackgroundColor: Colors.white,
+              buttonTheme: ButtonThemeData(buttonColor: Colors.teal),
+              primarySwatch: Colors.teal,
+              primaryColor: Colors.teal,
+              accentColor: Colors.redAccent),
           routes: {
             Constants.HOME_PATH: (BuildContext context) => HomePage(_model),
             Constants.ROOMS_PATH: (BuildContext context) => RoomsPage(),

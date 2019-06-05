@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:tutiflutti/page/wait_reviews.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
 
@@ -16,8 +17,9 @@ class ReviewPage extends StatelessWidget {
           appBar: Theme.of(context).platform == TargetPlatform.iOS
               ? CupertinoNavigationBar(
                   middle: Text('Revisión', style: TextStyle(color: Colors.white)),
-                  backgroundColor: Colors.teal)
-              : AppBar(title: Text('Revisión')),
+                  backgroundColor: Colors.teal,
+                  automaticallyImplyLeading: false)
+              : AppBar(title: Text('Revisión'), automaticallyImplyLeading: false),
           body: Container(
               child: Center(
                   child: StreamBuilder(
@@ -31,14 +33,12 @@ class ReviewPage extends StatelessWidget {
 
   Widget _buildReview(BuildContext context, MainModel model, Map<String, String> userInputs,
       AsyncSnapshot snapshot) {
-    return Column(
-      children: <Widget>[
-        _buildCheckUserInputsMessage(model, userInputs, snapshot),
-        userInputs.isNotEmpty
-            ? _buildListUserInputs(model, userInputs)
-            : _noInputsToCheckMessage(context, model, getUserToReview(snapshot)),
-      ],
-    );
+    return Column(children: <Widget>[
+      _buildCheckUserInputsMessage(model, userInputs, snapshot),
+      userInputs.isNotEmpty
+          ? _buildListUserInputs(model, userInputs)
+          : _noInputsToCheckMessage(context, model, getUserToReview(snapshot))
+    ]);
   }
 
   Widget _buildCheckUserInputsMessage(
@@ -51,15 +51,14 @@ class ReviewPage extends StatelessWidget {
             Text(model.gameLetter, style: TextStyle(fontSize: 56.0)),
             SizedBox(height: 20.0),
             RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(style: TextStyle(color: Colors.black), children: [
-                TextSpan(text: 'Corrobora las respuestas de '),
-                TextSpan(
-                  text: '${getUserToReview(snapshot)}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )
-              ]),
-            ),
+                textAlign: TextAlign.center,
+                text: TextSpan(style: TextStyle(color: Colors.black), children: [
+                  TextSpan(text: 'Corrobora las respuestas de '),
+                  TextSpan(
+                    text: '${getUserToReview(snapshot)}',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )
+                ])),
             SizedBox(height: 20.0),
             Divider(),
             _buildLegend(),
@@ -79,15 +78,13 @@ class ReviewPage extends StatelessWidget {
             Row(children: <Widget>[
               Icon(Icons.arrow_back, color: Colors.red),
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 2.0),
-                child: Text('Incorrecto', style: TextStyle(color: Colors.red)),
-              )
+                  margin: const EdgeInsets.symmetric(horizontal: 2.0),
+                  child: Text('Incorrecto', style: TextStyle(color: Colors.red)))
             ]),
             Row(children: <Widget>[
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 2.0),
-                child: Text('Correcto', style: TextStyle(color: Colors.green)),
-              ),
+                  margin: const EdgeInsets.symmetric(horizontal: 2.0),
+                  child: Text('Correcto', style: TextStyle(color: Colors.green))),
               Icon(Icons.arrow_forward, color: Colors.green)
             ])
           ])
@@ -100,6 +97,7 @@ class ReviewPage extends StatelessWidget {
     List inputs = userInputs.values.toList();
     return Flexible(
         child: ListView.builder(
+            itemCount: _itemCount,
             itemBuilder: (BuildContext context, int index) {
               return Dismissible(
                   key: Key('${model.username}${categories[index]}${inputs[index]}'),
@@ -113,27 +111,25 @@ class ReviewPage extends StatelessWidget {
                     _itemCount--;
                     if (_itemCount == 0) {
                       model.subtractOneReviewersLeft();
-                      Navigator.pushReplacementNamed(context, Constants.WAIT_REVIEWS_PATH);
+                      Navigator.pushReplacement(
+                          context, MaterialPageRoute(builder: (context) => WaitReviewsPage(model)));
                     }
                   },
                   background: Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.only(left: 10.0),
-                    color: Colors.green,
-                    child: Icon(Icons.check, color: Colors.white, size: 30.0),
-                  ),
+                      alignment: Alignment.centerLeft,
+                      padding: EdgeInsets.only(left: 10.0),
+                      color: Colors.green,
+                      child: Icon(Icons.check, color: Colors.white, size: 30.0)),
                   secondaryBackground: Container(
-                    alignment: Alignment.centerRight,
-                    padding: EdgeInsets.only(right: 10.0),
-                    color: Colors.red,
-                    child: Icon(Icons.clear, color: Colors.white, size: 30.0),
-                  ),
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.only(right: 10.0),
+                      color: Colors.red,
+                      child: Icon(Icons.clear, color: Colors.white, size: 30.0)),
                   child: Column(children: <Widget>[
                     ListTile(title: Text(categories[index]), subtitle: Text(inputs[index])),
                     Divider(height: 2.0)
                   ]));
-            },
-            itemCount: _itemCount));
+            }));
   }
 
   Widget _noInputsToCheckMessage(BuildContext context, MainModel model, String username) {
@@ -143,21 +139,21 @@ class ReviewPage extends StatelessWidget {
       Icon(Icons.mood_bad, size: 80.0),
       SizedBox(height: 20.0),
       RichText(
-        textAlign: TextAlign.center,
-        text: TextSpan(style: TextStyle(color: Colors.black), children: [
-          TextSpan(text: 'Al parecer '),
-          TextSpan(text: '$username', style: TextStyle(fontWeight: FontWeight.bold)),
-          TextSpan(text: ' no ingresó ninguna palabra')
-        ]),
-      ),
+          textAlign: TextAlign.center,
+          text: TextSpan(style: TextStyle(color: Colors.black), children: [
+            TextSpan(text: 'Al parecer '),
+            TextSpan(text: '$username', style: TextStyle(fontWeight: FontWeight.bold)),
+            TextSpan(text: ' no ingresó ninguna palabra')
+          ])),
       SizedBox(height: 20.0),
       FlatButton(
+          color: Colors.teal,
+          child: Text('Continuar', style: TextStyle(color: Colors.white)),
           onPressed: () {
             model.subtractOneReviewersLeft();
-            Navigator.pushReplacementNamed(context, Constants.WAIT_REVIEWS_PATH);
-          },
-          color: Colors.teal,
-          child: Text('Continuar', style: TextStyle(color: Colors.white)))
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => WaitReviewsPage(model)));
+          })
     ]));
   }
 

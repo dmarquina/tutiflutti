@@ -37,7 +37,7 @@ class WaitInputsPageState extends State<WaitInputsPage> {
     _context = context;
     return Scaffold(
       appBar: AppBar(
-        title: Text(Constants.TITLE),
+        title: Text(Constants.TITLE),automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Column(
@@ -55,7 +55,7 @@ class WaitInputsPageState extends State<WaitInputsPage> {
   }
 
   goToReview() {
-    Timer(Duration(seconds: 2), () {
+    Timer(Duration(seconds: 3), () {
       Navigator.pushReplacementNamed(_context, Constants.REVIEW_PATH);
     });
   }

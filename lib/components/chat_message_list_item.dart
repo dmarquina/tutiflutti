@@ -12,16 +12,14 @@ class ChatMessageListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizeTransition(
-      sizeFactor: CurvedAnimation(parent: animation, curve: Curves.decelerate),
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 10.0),
-        child: Row(
-          children: model.username == messageSnapshot.value['username']
-              ? getSentMessageLayout(context)
-              : getReceivedMessageLayout(),
-        ),
-      ),
-    );
+        sizeFactor: CurvedAnimation(parent: animation, curve: Curves.decelerate),
+        child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 10.0),
+            child: Row(
+              children: model.username == messageSnapshot.value['username']
+                  ? getSentMessageLayout(context)
+                  : getReceivedMessageLayout(),
+            )));
   }
 
   List<Widget> getSentMessageLayout(BuildContext context) {
@@ -54,31 +52,25 @@ class ChatMessageListItem extends StatelessWidget {
 
   List<Widget> getReceivedMessageLayout() {
     return <Widget>[
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(
-              margin: const EdgeInsets.only(right: 8.0),
-              child: CircleAvatar(
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+        Container(
+            margin: const EdgeInsets.only(right: 8.0),
+            child: CircleAvatar(
                 child: Text(
-                    messageSnapshot.value['username'].toString().substring(0, 1).toUpperCase()),
-              )),
-        ],
-      ),
+                    messageSnapshot.value['username'].toString().substring(0, 1).toUpperCase())))
+      ]),
       Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         Text(messageSnapshot.value['username'],
             style: TextStyle(fontSize: 14.0, color: Colors.black, fontWeight: FontWeight.bold)),
         Container(
-          margin: const EdgeInsets.only(top: 5.0),
-          child: messageSnapshot.value['imageUrl'] != null
-              ? Image.network(
-                  messageSnapshot.value['imageUrl'],
-                  width: 250.0,
-                )
-              : Text(messageSnapshot.value['message']),
-//                  messageSnapshot.value['text']),
-        )
+            margin: const EdgeInsets.only(top: 5.0),
+            child: messageSnapshot.value['imageUrl'] != null
+                ? Image.network(
+                    messageSnapshot.value['imageUrl'],
+                    width: 250.0,
+                  )
+                : Text(messageSnapshot.value['message']))
       ]))
     ];
   }

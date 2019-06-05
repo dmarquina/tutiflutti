@@ -5,7 +5,7 @@ import 'package:tutiflutti/page/conflicts.dart';
 import 'package:tutiflutti/page/review.dart';
 import 'package:tutiflutti/page/rooms.dart';
 import 'package:tutiflutti/page/home.dart';
-import 'package:tutiflutti/page/filling_time.dart';
+import 'package:tutiflutti/page/play_time.dart';
 import 'package:tutiflutti/page/score.dart';
 import 'package:tutiflutti/page/wait_inputs.dart';
 import 'package:tutiflutti/page/wait_reviews.dart';
@@ -45,12 +45,10 @@ class MyAppState extends State<MyApp> {
           routes: {
             Constants.HOME_PATH: (BuildContext context) => HomePage(_model),
             Constants.ROOMS_PATH: (BuildContext context) => RoomsPage(),
-            Constants.WAITING_ROOM_PATH: (BuildContext context) => WaitingRoom(_model),
-            Constants.START_GAME_PATH: (BuildContext context) => FillingTimePage(_model),
+            Constants.START_GAME_PATH: (BuildContext context) => PlayTimePage(_model),
             Constants.WAIT_INPUT_PATH: (BuildContext context) => WaitInputsPage(_model),
             Constants.REVIEW_PATH: (BuildContext context) => ReviewPage(),
             Constants.WAIT_REVIEWS_PATH: (BuildContext context) => WaitReviewsPage(_model),
-            Constants.CONFLICTS_PATH: (BuildContext context) => ConflictsPage(),
             Constants.WAIT_SCORE_PATH: (BuildContext context) => WaitScorePage(_model),
             Constants.SCORE_PATH: (BuildContext context) => ScorePage(_model),
           },

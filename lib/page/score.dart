@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/model/conflict.dart';
+import 'package:tutiflutti/page/rooms.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
 import 'package:tutiflutti/util/ui/podium_colors.dart';
@@ -27,7 +28,7 @@ class ScorePageState extends State<ScorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Puntaje')),
+        appBar: AppBar(title: Text('Puntaje'), automaticallyImplyLeading: false),
         body: StreamBuilder(
             stream: widget._model.getScoreBoard(),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -48,7 +49,10 @@ class ScorePageState extends State<ScorePage> {
               }
             }),
         floatingActionButton: FloatingActionButton(
-            onPressed: () => Navigator.pushReplacementNamed(context, Constants.ROOMS_PATH),
+            onPressed: () {
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => RoomsPage()));
+            },
             child: Icon(Icons.play_arrow)));
   }
 

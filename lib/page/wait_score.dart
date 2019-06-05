@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:tutiflutti/page/score.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
 
@@ -43,8 +44,8 @@ class WaitScorePageState extends State<WaitScorePage> {
         appBar: Theme.of(context).platform == TargetPlatform.iOS
             ? CupertinoNavigationBar(
                 middle: Text(Constants.TITLE, style: TextStyle(color: Colors.white)),
-                backgroundColor: Colors.teal)
-            : AppBar(title: Text(Constants.TITLE)),
+                backgroundColor: Colors.teal,automaticallyImplyLeading: false)
+            : AppBar(title: Text(Constants.TITLE),automaticallyImplyLeading: false),
         body: Container(
           child: Center(
             child: Column(
@@ -64,8 +65,9 @@ class WaitScorePageState extends State<WaitScorePage> {
   }
 
   goToScore() {
-    Timer(Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(_context, Constants.SCORE_PATH);
+    Timer(Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+          _context, MaterialPageRoute(builder: (context) => ScorePage(widget._model)));
     });
   }
 }

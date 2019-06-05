@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tutiflutti/page/conflicts.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
 
@@ -39,10 +40,9 @@ class WaitReviewsPageState extends State<WaitReviewsPage> {
       appBar: Theme.of(context).platform == TargetPlatform.iOS
           ? CupertinoNavigationBar(
               middle: Text(Constants.TITLE, style: TextStyle(color: Colors.white)),
-              backgroundColor: Colors.teal)
-          : AppBar(
-              title: Text(Constants.TITLE),
-            ),
+              backgroundColor: Colors.teal,
+              automaticallyImplyLeading: false)
+          : AppBar(title: Text(Constants.TITLE), automaticallyImplyLeading: false),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -58,7 +58,12 @@ class WaitReviewsPageState extends State<WaitReviewsPage> {
     );
   }
 
-  goToConflicts() => Navigator.pushReplacementNamed(_context, Constants.CONFLICTS_PATH);
+  goToConflicts() => Timer(Duration(seconds: 2), () {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => ConflictsPage(widget._model)));
+      });
 
-  goToScore() => Navigator.pushReplacementNamed(_context, Constants.SCORE_PATH);
+  goToScore() => Timer(Duration(seconds: 2), () {
+        Navigator.pushReplacementNamed(_context, Constants.SCORE_PATH);
+      });
 }

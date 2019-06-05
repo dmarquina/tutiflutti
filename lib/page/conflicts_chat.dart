@@ -8,9 +8,11 @@ import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/components/chat_message_list_item.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 
-var currentUserEmail;
-
 class ConflictsChat extends StatefulWidget {
+  final Function resetNewMessagesCount;
+
+  ConflictsChat(this.resetNewMessagesCount);
+
   @override
   ConflictsChatState createState() {
     return ConflictsChatState();
@@ -22,11 +24,17 @@ class ConflictsChatState extends State<ConflictsChat> {
   bool _isComposingMessage = false;
 
   @override
+  void dispose() {
+    widget.resetNewMessagesCount();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
-          appBar: AppBar(title: Text("Chat de conflictos")),
+          appBar: AppBar(title: Text("Chat")),
           body: Container(
               child: Column(children: <Widget>[
             _buildMessageList(model),
@@ -64,21 +72,25 @@ class ConflictsChatState extends State<ConflictsChat> {
                 : Theme.of(context).disabledColor),
         child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Row(children: <Widget>[
-              Container(
-                  margin: EdgeInsets.symmetric(horizontal: 4.0),
-                  child: IconButton(
-                      icon: Icon(
-                        Icons.photo_camera,
-                        color: Theme.of(context).accentColor,
-                      ),
-                      onPressed: () async {
-//                        int timestamp = DateTime.now().millisecondsSinceEpoch;
-//                      _sendMessage(messageText: null, imageUrl: downloadUrl.toString());
-                      })),
-              _buildMessageBox(model),
-              _buildSendButton(model)
-            ])));
+            child: Row(children: <Widget>[_buildMessageBox(model), _buildSendButton(model)])));
+  }
+
+  Widget _buildCameraBox() {
+//    return Container(
+//        margin: EdgeInsets.symmetric(horizontal: 4.0),
+//        child: IconButton(
+//            icon: Icon(
+//              Icons.photo_camera,
+//              color: Theme
+//                  .of(context)
+//                  .accentColor,
+//            ),
+//            onPressed: () async {
+//              int timestamp = DateTime
+//                  .now()
+//                  .millisecondsSinceEpoch;
+//              _sendMessage(messageText: null, imageUrl: downloadUrl.toString());
+//            }));
   }
 
   Widget _buildMessageBox(MainModel model) {

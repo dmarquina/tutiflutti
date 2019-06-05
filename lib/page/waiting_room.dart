@@ -12,7 +12,8 @@ import 'package:tutiflutti/util/ui/rainbow_colors.dart';
 class WaitingRoom extends StatefulWidget {
   final MainModel _model;
   final String title;
-  WaitingRoom(this._model,{this.title});
+
+  WaitingRoom(this._model, {this.title});
 
   @override
   WaitingRoomState createState() => WaitingRoomState();
@@ -22,6 +23,7 @@ class WaitingRoomState extends State<WaitingRoom> {
   StreamSubscription _subscriptionGameStatus;
   StreamSubscription _subscriptionCanStartGame;
   bool _gameCanStart = false;
+  bool _gameStarted = false;
 
   @override
   void initState() {
@@ -31,7 +33,6 @@ class WaitingRoomState extends State<WaitingRoom> {
     widget._model
         .watchIfGameCanStart(toggleGameCanStart)
         .then((StreamSubscription s) => _subscriptionCanStartGame = s);
-
     widget._model.setReviewToUser(widget._model.userId, widget._model.username);
 
     super.initState();
@@ -41,10 +42,18 @@ class WaitingRoomState extends State<WaitingRoom> {
   void dispose() {
     _subscriptionGameStatus.cancel();
     _subscriptionCanStartGame.cancel();
+    if (!_gameStarted) {
+      widget._model.deleteUserFromGame(widget._model.userId);
+      widget._model.setReviewToUser(widget._model.userId, widget._model.username);
+    }
+
     super.dispose();
   }
 
-  startGame() => Navigator.pushReplacementNamed(context, Constants.START_GAME_PATH);
+  startGame() {
+    _gameStarted = true;
+    Navigator.pushReplacementNamed(context, Constants.START_GAME_PATH);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,12 +61,12 @@ class WaitingRoomState extends State<WaitingRoom> {
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
           appBar: AppBar(
-            title: Text(widget.title),centerTitle: true,
-          ),
+              title: Text(widget.title.toUpperCase()),
+              centerTitle: true,
+              automaticallyImplyLeading: false),
           body: Container(
             color: Colors.black87,
             child: Column(children: <Widget>[
-
               Expanded(flex: 8, child: _buildUsersBoard()),
               Expanded(flex: 2, child: _buildLetsPlayButton(model))
             ]),
@@ -83,16 +92,14 @@ class WaitingRoomState extends State<WaitingRoom> {
   Widget _buildLetsPlayButton(MainModel model) {
     return Column(
       children: <Widget>[
-        FlatButton(child: Text('Msn'),color: Colors.teal,onPressed: (){
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => ConflictsChat()));
-        }),
         Container(
           padding: EdgeInsets.symmetric(vertical: 20.0),
           child: FlatButton(
-            onPressed: _gameCanStart ? () => model.startGame(Constants.GAME_STATUS_IN_PROGRESS) : null,
+            onPressed:
+                _gameCanStart ? () => model.startGame(Constants.GAME_STATUS_IN_PROGRESS) : null,
             child: Text(_gameCanStart ? '¡A JUGAR!' : 'ESPEREMOS',
-                style: TextStyle(color: _gameCanStart ? Colors.white : Colors.grey, fontSize: 20.0)),
+                style:
+                    TextStyle(color: _gameCanStart ? Colors.white : Colors.grey, fontSize: 20.0)),
           ),
         ),
       ],

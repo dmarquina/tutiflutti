@@ -7,18 +7,18 @@ import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
 import 'package:tutiflutti/util/ui/rounded_button.dart';
 
-class FillingTimePage extends StatefulWidget {
+class PlayTimePage extends StatefulWidget {
   final MainModel model;
 
-  FillingTimePage(this.model);
+  PlayTimePage(this.model);
 
   @override
-  FillingTimePageState createState() {
-    return new FillingTimePageState();
+  PlayTimePageState createState() {
+    return new PlayTimePageState();
   }
 }
 
-class FillingTimePageState extends State<FillingTimePage> {
+class PlayTimePageState extends State<PlayTimePage> {
   final _inputController = TextEditingController();
   String actualCategory = '';
   StreamSubscription _subscriptionGameStatus;
@@ -38,6 +38,39 @@ class FillingTimePageState extends State<FillingTimePage> {
   void dispose() {
     _subscriptionGameStatus.cancel();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _context = context;
+    return ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
+      return Scaffold(
+          appBar: Theme.of(context).platform == TargetPlatform.iOS
+              ? CupertinoNavigationBar(
+                  middle: Text(Constants.TITLE, style: TextStyle(color: Colors.white)),
+                  backgroundColor: Colors.teal,
+                  automaticallyImplyLeading: false)
+              : AppBar(title: Text(Constants.TITLE), automaticallyImplyLeading: false),
+          body: SingleChildScrollView(
+              child: Container(
+                  child: Center(
+                      child: Column(children: <Widget>[
+            SizedBox(height: 50.0),
+            RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(style: TextStyle(color: Colors.black), children: [
+                  TextSpan(
+                    text: '$actualCategory ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(text: 'que inicie con la letra: ')
+                ])),
+            Text(model.gameLetter, style: TextStyle(fontSize: 56.0)),
+            _buildInputForm(),
+            _buildActionButton()
+          ])))));
+    });
   }
 
   Widget _buildInputForm() {
@@ -109,46 +142,5 @@ class FillingTimePageState extends State<FillingTimePage> {
     widget.model.addUserInput(actualCategory, _inputController.text);
     widget.model.saveUserInputs(widget.model.userId, widget.model.userInputs);
     Navigator.pushReplacementNamed(_context, Constants.WAIT_INPUT_PATH);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    _context = context;
-    return ScopedModelDescendant<MainModel>(
-        builder: (BuildContext context, Widget child, MainModel model) {
-      return Scaffold(
-          appBar: Theme.of(context).platform == TargetPlatform.iOS
-              ? CupertinoNavigationBar(
-                  middle: Text(Constants.TITLE, style: TextStyle(color: Colors.white)),
-                  backgroundColor: Colors.teal)
-              : AppBar(
-                  title: Text(Constants.TITLE),
-                ),
-          body: SingleChildScrollView(
-            child: Container(
-                child: Center(
-                    child: Column(children: <Widget>[
-              SizedBox(
-                height: 50.0,
-              ),
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(style: TextStyle(color: Colors.black), children: [
-                  TextSpan(
-                    text: '$actualCategory ',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(text: 'que inicie con la letra: ')
-                ]),
-              ),
-              Text(
-                model.gameLetter,
-                style: TextStyle(fontSize: 56.0),
-              ),
-              _buildInputForm(),
-              _buildActionButton()
-            ]))),
-          ));
-    });
   }
 }

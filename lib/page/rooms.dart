@@ -17,8 +17,8 @@ class RoomsPage extends StatelessWidget {
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
           appBar: Theme.of(context).platform == TargetPlatform.iOS
-              ? CupertinoNavigationBar(middle: Text('Salas'))
-              : AppBar(title: Text('Salas'), centerTitle: true),
+              ? CupertinoNavigationBar(middle: Text('Juegos disponibles'),automaticallyImplyLeading: false)
+              : AppBar(title: Text('Juegos disponibles'), centerTitle: true,automaticallyImplyLeading: false),
           body: Container(
               child: FirebaseAnimatedList(
                   query: model.getAllGames(),
@@ -47,29 +47,28 @@ class RoomsPage extends StatelessWidget {
                   title: Text('Nombre del juego'),
                   content: Container(
                       padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: CupertinoTextField(
-                        controller: _gameNameController,
-                        maxLength: 25,
-                      )),
+                      child: CupertinoTextField(controller: _gameNameController, maxLength: 25)),
                   actions: <Widget>[
-                    CupertinoDialogAction(
-                      child: Text('Cancelar'),
-                      isDestructiveAction: true,
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    CupertinoDialogAction(
-                      child: Text('Guardar'),
-                      isDefaultAction: true,
-                      onPressed: () {
-                        model.createGame(_gameNameController.text, model.userId, model.username);
-                        Navigator.pop(context);
-                        Navigator.pushReplacementNamed(context, Constants.WAITING_ROOM_PATH);
-                      },
-                    )
-                  ],
-                )
+                      CupertinoDialogAction(
+                          child: Text('Cancelar'),
+                          isDestructiveAction: true,
+                          onPressed: () {
+                            Navigator.pop(context);
+                          }),
+                      CupertinoDialogAction(
+                          child: Text('Guardar'),
+                          isDefaultAction: true,
+                          onPressed: () {
+                            model.createGame(
+                                _gameNameController.text, model.userId, model.username);
+                            Navigator.pop(context);
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        WaitingRoom(model, title: _gameNameController.text)));
+                          })
+                    ])
               : AlertDialog(
                   title: Text('Nombre del juego'),
                   content: Container(
@@ -83,17 +82,21 @@ class RoomsPage extends StatelessWidget {
                       child: Text('Cancelar'),
                       onPressed: () {
                         Navigator.pop(context);
-                      },
+                      }
                     ),
                     FlatButton(
                       child: Text('Guardar'),
                       onPressed: () {
                         model.createGame(_gameNameController.text, model.userId, model.username);
                         Navigator.pop(context);
-                        Navigator.pushReplacementNamed(context, Constants.WAITING_ROOM_PATH);
-                      },
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    WaitingRoom(model, title: _gameNameController.text)));
+                      }
                     )
-                  ],
+                  ]
                 );
         });
   }

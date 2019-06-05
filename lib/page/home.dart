@@ -22,54 +22,45 @@ class HomePageState extends State<HomePage> {
     usernameController.text = widget._model.username;
     _context = context;
     return Scaffold(
-      appBar: Theme.of(context).platform == TargetPlatform.iOS
-          ? CupertinoNavigationBar(
-              middle: Text(Constants.TITLE, style: TextStyle(color: Colors.white)),
-              backgroundColor: Colors.teal)
-          : AppBar(title: Text(Constants.TITLE), centerTitle: true),
-      body: Container(
-        margin: EdgeInsets.only(top: 100.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              Text('Ingresa tu usuario', style: TextStyle(fontSize: 20.0)),
+        appBar: Theme.of(context).platform == TargetPlatform.iOS
+            ? CupertinoNavigationBar(
+                middle: Text(Constants.TITLE, style: TextStyle(color: Colors.white)),
+                backgroundColor: Colors.teal)
+            : AppBar(title: Text(Constants.TITLE), centerTitle: true),
+        body: Container(
+            margin: EdgeInsets.only(top: 100.0),
+            child: SingleChildScrollView(
+                child: Column(children: <Widget>[
+              Text('¿Cómo debemos llamarte?', style: TextStyle(fontSize: 20.0)),
               SizedBox(height: 10.0),
               _buildInputUsername(),
               SizedBox(height: 10.0),
               _buildSubmitButton(widget._model, context)
-            ],
-          ),
-        ),
-      ),
-    );
+            ]))));
   }
 
   Widget _buildInputUsername() {
     return Container(
         padding: EdgeInsets.symmetric(horizontal: 8.0),
         child: TextField(
-          controller: usernameController,
-          textAlign: TextAlign.center,
-          maxLength: 12,
-          decoration: InputDecoration(
-            hintStyle: new TextStyle(color: Colors.grey[600]),
-            filled: true,
-            fillColor: Colors.white,
-            border: new OutlineInputBorder(
-              borderRadius: const BorderRadius.all(
-                const Radius.circular(50.0),
-              ),
-            ),
-          ),
-        ));
+            onSubmitted: (text) {
+              searchGames();
+            },
+            controller: usernameController,
+            textAlign: TextAlign.center,
+            maxLength: 12,
+            decoration: InputDecoration(
+                hintStyle: new TextStyle(color: Colors.grey[600]),
+                filled: true,
+                fillColor: Colors.white,
+                border: new OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(const Radius.circular(50.0))))));
   }
 
   Widget _buildSubmitButton(MainModel model, BuildContext context) {
     return Container(
         child: Row(children: <Widget>[
-      Expanded(
-        child: RoundedButton.big(Colors.teal, _readyText(), searchGames),
-      ),
+      Expanded(child: RoundedButton.big(Colors.teal, _readyText(), searchGames))
     ]));
   }
 

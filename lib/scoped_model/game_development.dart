@@ -82,6 +82,9 @@ mixin GameDevelopmentModel on Model {
       .child(userId)
       .set({'username': username, 'score': 0});
 
+  deleteUserFromGame(String userId) =>
+      gameDatabase.child(_gameId).child('users').child(userId).remove();
+
   updateGameLetter() async {
     DataSnapshot missingLetters = await gameDatabase.child(_gameId).child('missing_letters').once();
     Map<String, List<int>> randomLetter =
@@ -124,7 +127,6 @@ mixin GameDevelopmentModel on Model {
         await gameDatabase.child(_gameId).child('users').child(userId).child('reviewTo').once();
     Map<String, dynamic> reviewTo = Map<String, dynamic>.from(dataSnapshot.value);
     this.setUserToReviewId(reviewTo.keys.first);
-    print(reviewTo.keys.first);
   }
 
   Stream getUserInfo(String userId) =>
@@ -221,8 +223,8 @@ mixin GameDevelopmentModel on Model {
 
   Map<String, dynamic> getConflictsInputs(AsyncSnapshot snapshot, String userId) {
     Map<String, dynamic> conflicts = Map.from(snapshot.data.value);
-    conflicts
-        .removeWhere((k, v) => v['owners'][userToReviewId] != null || v['owners'][userId] != null);
+//    conflicts
+//        .removeWhere((k, v) => v['owners'][userToReviewId] != null || v['owners'][userId] != null);
     return conflicts;
   }
 
@@ -364,6 +366,12 @@ mixin GameDevelopmentModel on Model {
         this.getUserToReview(userId);
         stopEveryone();
       }
+    });
+  }
+
+  Future<StreamSubscription<Event>> watchMessagesIncoming(Function addMessagesCount) async {
+    return gameDatabase.child(_gameId).child('chat').onChildAdded.listen((Event event) {
+      addMessagesCount();
     });
   }
 }

@@ -15,7 +15,7 @@ mixin UserInputModel on Model {
     Map<String, String> response = {};
     _userInputs?.forEach((key, value) {
       if (value.isNotEmpty && value != Constants.EMPTY_CHARACTER) {
-        response[key] = value;
+        response[key] = value.toUpperCase();
       }
     });
     return response;

@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:tutiflutti/page/conflicts_chat.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:tutiflutti/page/chat.dart';
 import 'package:tutiflutti/page/wait_score.dart';
+import 'package:tutiflutti/repository/chat.dart';
+import 'package:tutiflutti/repository/reviews_conflicts.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
 
@@ -18,11 +21,21 @@ class ConflictsPage extends StatefulWidget {
 
 class _ConflictsPageState extends State<ConflictsPage> {
   StreamSubscription _subscriptionNewMessages;
-  int newMessagesCount = 0;
+  ReviewsConflictsRepository reviewsConflictsRepository;
+  ChatRepository chatRepository;
+  Map<String, dynamic> _conflicts;
 
   @override
   void initState() {
-    widget.model
+    reviewsConflictsRepository = ReviewsConflictsRepository(widget.model.gameId);
+
+    reviewsConflictsRepository.getConflicts().then((conflicts) {
+      setState(() {
+        _conflicts = conflicts;
+      });
+    });
+    chatRepository = ChatRepository(widget.model.gameId);
+    chatRepository
         .watchMessagesIncoming(addMessagesCount)
         .then((StreamSubscription s) => _subscriptionNewMessages = s);
     super.initState();
@@ -30,52 +43,50 @@ class _ConflictsPageState extends State<ConflictsPage> {
 
   @override
   void dispose() {
+    widget.model.resetIncomingMessages();
     _subscriptionNewMessages.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            title: Text('Conflictos'),
-            actions: <Widget>[
-              Stack(children: <Widget>[
-                IconButton(
-                    icon: Icon(Icons.message),
-                    color: Colors.white,
-                    onPressed: () {
-                      newMessagesCount = 0;
-
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ConflictsChat(resetNewMessagesCount)));
-                    }),
-                newMessagesCount > 0 ? _buildMessageCounter(newMessagesCount) : Container()
-              ])
-            ],
-            automaticallyImplyLeading: false),
-        body: Container(
-            child: Center(
-                child: Column(children: <Widget>[
-          SizedBox(height: 20.0),
-          Text(widget.model.gameLetter, style: TextStyle(fontSize: 56.0)),
-          SizedBox(height: 20.0),
-          Container(
-              padding: EdgeInsets.symmetric(horizontal: 5.0),
-              child: Text('¿Estas palabras son correctas?', textAlign: TextAlign.center)),
-          SizedBox(height: 20.0),
-          _buildLegend(),
-          SizedBox(height: 10.0),
-          Divider(height: 0.0),
-          fetchAnswers(widget.model)
-        ]))));
-  }
-
-  resetNewMessagesCount() {
-    setState(() {
-      newMessagesCount = 0;
+    return ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
+      model = widget.model;
+      return Scaffold(
+          appBar: AppBar(
+              title: Text('Conflictos'),
+              actions: <Widget>[
+                Stack(children: <Widget>[
+                  IconButton(
+                      icon: Icon(Icons.message),
+                      color: Colors.white,
+                      onPressed: () {
+                        model.resetIncomingMessages();
+                        model.stopWatchIncomingMessages();
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => Chat()));
+                      }),
+                  model.newIncomingMessages > 0
+                      ? _buildMessageCounter(model.newIncomingMessages)
+                      : Container()
+                ])
+              ],
+              automaticallyImplyLeading: false),
+          body: Container(
+              child: Center(
+                  child: Column(children: <Widget>[
+            SizedBox(height: 20.0),
+            Text(model.gameLetter, style: TextStyle(fontSize: 56.0)),
+            SizedBox(height: 20.0),
+            Container(
+                padding: EdgeInsets.symmetric(horizontal: 5.0),
+                child: Text('¿Estas palabras son correctas?', textAlign: TextAlign.center)),
+            SizedBox(height: 20.0),
+            _buildLegend(),
+            SizedBox(height: 10.0),
+            Divider(height: 0.0),
+            fetchAnswers()
+          ]))));
     });
   }
 
@@ -92,74 +103,71 @@ class _ConflictsPageState extends State<ConflictsPage> {
     );
   }
 
-  Widget fetchAnswers(MainModel model) {
-    return StreamBuilder(
-        stream: model.getConflicts(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) {
-            Map<String, dynamic> conflicts = model.getConflictsInputs(snapshot, model.userId);
-            int _itemCount = conflicts.length;
-            if (_itemCount == 0) {
-              return Center(
+  Widget fetchAnswers() {
+    if (_conflicts == null) {
+      return Center(
+          child: Theme.of(context).platform == TargetPlatform.iOS
+              ? CupertinoActivityIndicator()
+              : CircularProgressIndicator());
+    } else {
+      if (_conflicts.isEmpty) {
+        return Center(
+            child: Column(children: <Widget>[
+          SizedBox(height: 50.0),
+          Text('No hay conflictos por revisar'),
+          SizedBox(height: 10.0),
+          RaisedButton(
+              child: Text('Continuar', style: TextStyle(color: Colors.white)),
+              color: Colors.teal,
+              onPressed: () {
+                reviewsConflictsRepository.subtractOneConflictReviewersLeft();
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (context) => WaitScorePage(widget.model)));
+              })
+        ]));
+      } else {
+        return _buildConflictsInputs();
+      }
+    }
+  }
+
+  Widget _buildConflictsInputs() {
+    return Flexible(
+        child: ListView.builder(
+            itemBuilder: (BuildContext context, int index) {
+              String conflictKey = _conflicts.keys.elementAt(index);
+              return Dismissible(
+                  key: Key(conflictKey),
+                  direction: DismissDirection.horizontal,
+                  onDismissed: (DismissDirection direction) {
+                    if (direction == DismissDirection.startToEnd) {
+                      reviewsConflictsRepository.addOneSupportConflict(conflictKey);
+                    }
+                    _conflicts.remove(conflictKey);
+                    if (_conflicts.isEmpty) {
+                      reviewsConflictsRepository.subtractOneConflictReviewersLeft();
+                      Navigator.pushReplacementNamed(context, Constants.WAIT_SCORE_PATH);
+                    }
+                  },
+                  background: Container(
+                      color: Colors.green,
+                      alignment: Alignment.centerLeft,
+                      padding: EdgeInsets.only(left: 10.0),
+                      child: Icon(Icons.check, color: Colors.white, size: 30.0)),
+                  secondaryBackground: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.only(right: 10.0),
+                    child: Icon(Icons.clear, color: Colors.white, size: 30.0),
+                  ),
                   child: Column(children: <Widget>[
-                SizedBox(height: 50.0),
-                Text('No hay conflictos por revisar'),
-                SizedBox(height: 10.0),
-                RaisedButton(
-                    child: Text('Continuar', style: TextStyle(color: Colors.white)),
-                    color: Colors.teal,
-                    onPressed: () {
-                      model.subtractOneConflictReviewersLeft();
-                      Navigator.pushReplacement(
-                          context, MaterialPageRoute(builder: (context) => WaitScorePage(model)));
-                    })
-              ]));
-            }
-            List conflictsList = conflicts.keys.toList();
-            return Flexible(
-                child: ListView.builder(
-                    itemBuilder: (BuildContext context, int index) {
-                      String key =
-                          '${conflicts[conflictsList[index]]['category']}${conflicts[conflictsList[index]]['answer']}${conflicts[conflictsList[index]]['owner']}';
-                      return Dismissible(
-                          key: Key(key),
-                          direction: DismissDirection.horizontal,
-                          onDismissed: (DismissDirection direction) {
-                            if (direction == DismissDirection.startToEnd) {
-                              model.addOneSupportConflict(key);
-                            }
-                            _itemCount--;
-                            if (_itemCount == 0) {
-                              model.subtractOneConflictReviewersLeft();
-                              Navigator.pushReplacementNamed(context, Constants.WAIT_SCORE_PATH);
-                            }
-                          },
-                          background: Container(
-                              color: Colors.green,
-                              alignment: Alignment.centerLeft,
-                              padding: EdgeInsets.only(left: 10.0),
-                              child: Icon(Icons.check, color: Colors.white, size: 30.0)),
-                          secondaryBackground: Container(
-                            color: Colors.red,
-                            alignment: Alignment.centerRight,
-                            padding: EdgeInsets.only(right: 10.0),
-                            child: Icon(Icons.clear, color: Colors.white, size: 30.0),
-                          ),
-                          child: Column(children: <Widget>[
-                            ListTile(
-                                title: Text(conflicts[conflictsList[index]]['category']),
-                                subtitle: Text(conflicts[conflictsList[index]]['answer'])),
-                            Divider(height: 2.0)
-                          ]));
-                    },
-                    itemCount: _itemCount));
-          } else {
-            return Center(
-                child: Theme.of(context).platform == TargetPlatform.iOS
-                    ? CupertinoActivityIndicator()
-                    : CircularProgressIndicator());
-          }
-        });
+                    ListTile(
+                        title: Text(_conflicts[conflictKey]['category']),
+                        subtitle: Text(_conflicts[conflictKey]['answer'])),
+                    Divider(height: 2.0)
+                  ]));
+            },
+            itemCount: _conflicts.length));
   }
 
   Widget _buildLegend() {
@@ -181,11 +189,7 @@ class _ConflictsPageState extends State<ConflictsPage> {
         ]));
   }
 
-
-
   addMessagesCount() {
-    setState(() {
-      newMessagesCount++;
-    });
+    widget.model.addOneIncomingMessage();
   }
 }

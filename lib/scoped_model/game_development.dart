@@ -12,7 +12,6 @@ mixin GameDevelopmentModel on Model {
   String _gameLetter = '';
   String _userToReviewId = '';
   int _usersLength = 0;
-  bool showProgressIndicator = true;
 
   final DatabaseReference gameDatabase = FirebaseReference.getReference('game');
 
@@ -36,7 +35,7 @@ mixin GameDevelopmentModel on Model {
 
   DatabaseReference getAllGameUsers() => gameDatabase.child(_gameId).child('users');
 
-  DatabaseReference getGameChat() => gameDatabase.child(_gameId).child('chat');
+
 
   Future<Map<String, String>> getUserAdministrator(String gameId) async {
     DataSnapshot administrator = await gameDatabase.child(gameId).child('administrator').once();
@@ -140,145 +139,6 @@ mixin GameDevelopmentModel on Model {
     }
   }
 
-  insertNewConflicts(String category, String answer, String userId) async {
-    DataSnapshot dataSnapshot =
-        await gameDatabase.child(_gameId).child('conflicts').child(category + answer).once();
-    if (dataSnapshot.value != null) {
-      Map<dynamic, dynamic> owners = dataSnapshot.value['owners'];
-      owners[userId] = userId;
-      await gameDatabase.child(_gameId).child('conflicts').child(category + answer).update({
-        'category': dataSnapshot.value['category'],
-        'answer': dataSnapshot.value['answer'],
-        'owners': owners
-      });
-    } else {
-      await gameDatabase.child(_gameId).child('conflicts').update({
-        category + answer: {
-          'category': category,
-          'answer': answer,
-          'owners': {userId: userId}
-        }
-      });
-    }
-  }
-
-  Future<void> setGoodAnswers(String category, String answer, String userId) async {
-    DataSnapshot dataSnapshot =
-        await gameDatabase.child(_gameId).child('goodAnswers').child(category + answer).once();
-    if (dataSnapshot.value == null) {
-      updateUserScoreAndInputsReviewed(userId, Constants.POINTS_FOR_GOOD_ANSWER, category);
-      insertNewGoodAnswer(category, answer, userId);
-    } else {
-      if (dataSnapshot.value['category'] == category && dataSnapshot.value['answer'] == answer) {
-        if (dataSnapshot.value['originalOwner'] != null) {
-          String userIdOwner = dataSnapshot.value['originalOwner'];
-          updateUserScoreAndInputsReviewed(
-              userIdOwner, Constants.NEGATIVE_POINTS_FOR_GOOD_REPEATED_ANSWER, category);
-          updateUserScoreAndInputsReviewed(
-              userId, Constants.POINTS_FOR_REPEATED_GOOD_ANSWER, category);
-          updateOwnerGoodAnswer(category, answer, userId);
-        } else {
-          updateUserScoreAndInputsReviewed(
-              userId, Constants.POINTS_FOR_REPEATED_GOOD_ANSWER, category);
-        }
-      } else {
-        insertNewGoodAnswer(category, answer, userId);
-        updateUserScoreAndInputsReviewed(userId, Constants.POINTS_FOR_GOOD_ANSWER, category);
-      }
-    }
-  }
-
-  subtractOneReviewersLeft() async {
-    DataSnapshot snapshot = await gameDatabase.child(_gameId).child('reviewersLeft').once();
-    await gameDatabase.child(_gameId).update({'reviewersLeft': snapshot.value - 1});
-  }
-
-  subtractOneConflictReviewersLeft() async {
-    DataSnapshot snapshot = await gameDatabase.child(_gameId).child('conflictReviewersLeft').once();
-    await gameDatabase.child(_gameId).update({'conflictReviewersLeft': snapshot.value - 1});
-  }
-
-  Future<void> insertNewGoodAnswer(String category, String answer, String userId) async {
-    await gameDatabase.child(_gameId).child('goodAnswers').update({
-      category + answer: {'category': category, 'answer': answer, 'originalOwner': userId}
-    });
-  }
-
-  Future<void> updateOwnerGoodAnswer(String category, String answer, String userId) async =>
-      await gameDatabase
-          .child(_gameId)
-          .child('goodAnswers')
-          .child(category + answer)
-          .set({'category': category, 'answer': answer});
-
-  Future<void> sendMessage(String message, String username) async {
-    await gameDatabase
-        .child(_gameId)
-        .child('chat')
-        .push()
-        .set({'message': message, 'username': username});
-  }
-
-  Stream getConflicts() => Stream.fromFuture(gameDatabase.child(_gameId).child('conflicts').once());
-
-  Map<String, dynamic> getConflictsInputs(AsyncSnapshot snapshot, String userId) {
-    Map<String, dynamic> conflicts = Map.from(snapshot.data.value);
-//    conflicts
-//        .removeWhere((k, v) => v['owners'][userToReviewId] != null || v['owners'][userId] != null);
-    return conflicts;
-  }
-
-  Future<void> updateUserScoreAndInputsReviewed(String userId, int score, String category) async {
-    DataSnapshot snapshot = await gameDatabase.child(_gameId).child('users').child(userId).once();
-    int newScore = snapshot.value['score'] + score;
-
-    if (score != Constants.NEGATIVE_POINTS_FOR_GOOD_REPEATED_ANSWER) {
-      snapshot.value['inputsReviewed'] =
-          checkInputsReviewed(snapshot.value['inputsReviewed'], score, category);
-    }
-
-    await gameDatabase.child(_gameId).child('users').child(userId).set({
-      'inputs': snapshot.value['inputs'],
-      'reviewTo': snapshot.value['reviewTo'],
-      'username': snapshot.value['username'],
-      'score': newScore,
-      'inputsReviewed': snapshot.value['inputsReviewed']
-    });
-  }
-
-  dynamic checkInputsReviewed(dynamic inputsRev, int score, String category) {
-    Map<dynamic, dynamic> inputsReviewed = inputsRev != null ? inputsRev : {};
-    inputsReviewed[category] = 'green';
-    return inputsReviewed;
-  }
-
-  addOneSupportConflict(String conflictId) async {
-    DataSnapshot snapshot =
-        await gameDatabase.child(_gameId).child('conflicts').child(conflictId).once();
-    int newSupport = snapshot.value['support'] != null ? snapshot.value['support'] + 1 : 1;
-    await gameDatabase.child(_gameId).child('conflicts').child(conflictId).set({
-      'answer': snapshot.value['answer'],
-      'category': snapshot.value['category'],
-      'owners': snapshot.value['owners'],
-      'support': newSupport
-    });
-  }
-
-  Map<String, String> getUserInputs(AsyncSnapshot snapshot) {
-    Map<String, String> response = {};
-    if (snapshot.data?.value['inputs'] != null) {
-      response = Map.from(snapshot.data?.value['inputs']);
-    }
-    if (snapshot.data?.value['noInput'] != null) {
-      response = {};
-    }
-    if (snapshot.data?.value['inputs'] == null && snapshot.data?.value['noInput'] == null) {
-      return null;
-    }
-
-    return response;
-  }
-
   Stream<DataSnapshot> getScoreBoard() =>
       Stream.fromFuture(gameDatabase.child(_gameId).child('users').once());
 
@@ -335,31 +195,6 @@ mixin GameDevelopmentModel on Model {
     });
   }
 
-  Future<StreamSubscription<Event>> watchIfConflictIsOver(Function goToScore, String userId) async {
-    int myOwnSupport = 1;
-    return gameDatabase.child(_gameId).child('conflictReviewersLeft').onValue.listen((Event event) {
-      if (event.snapshot.value == 0) {
-        gameDatabase.child(_gameId).child('conflicts').once().then((conflicts) async {
-          await Future.forEach(Map.from(conflicts.value).values, (value) async {
-            DataSnapshot ds = await gameDatabase
-                .child(_gameId)
-                .child('goodAnswers')
-                .child('${value['category']}${value['answer']}')
-                .once();
-            if (ds.value != null && value['owners'][userId] != null) {
-              await this.setGoodAnswers(value['category'], value['answer'], userId);
-            } else if (value['owners'][userId] != null &&
-                value['support'] != null &&
-                value['support'] > (usersLength / 2) + myOwnSupport) {
-              await this.setGoodAnswers(value['category'], value['answer'], userId);
-            }
-          });
-          goToScore();
-        });
-      }
-    });
-  }
-
   Future<StreamSubscription<Event>> watchIfGameStatusStop(String userId, stopEveryone) async {
     return gameDatabase.child(_gameId).onValue.listen((Event event) {
       if (event.snapshot.value['status'] == Constants.GAME_STATUS_STOP) {
@@ -369,9 +204,5 @@ mixin GameDevelopmentModel on Model {
     });
   }
 
-  Future<StreamSubscription<Event>> watchMessagesIncoming(Function addMessagesCount) async {
-    return gameDatabase.child(_gameId).child('chat').onChildAdded.listen((Event event) {
-      addMessagesCount();
-    });
-  }
+
 }

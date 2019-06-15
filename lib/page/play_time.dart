@@ -57,16 +57,12 @@ class PlayTimePageState extends State<PlayTimePage> {
                   child: Center(
                       child: Column(children: <Widget>[
             SizedBox(height: 50.0),
-            RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(style: TextStyle(color: Colors.black), children: [
-                  TextSpan(
-                    text: '$actualCategory ',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(text: 'que inicie con la letra: ')
-                ])),
+            Text('$actualCategory', style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.w600)),
+            SizedBox(height: 5.0),
+            Text('que inicie con', style: TextStyle(fontSize: 14.0)),
+            SizedBox(height: 5.0),
             Text(model.gameLetter, style: TextStyle(fontSize: 56.0)),
+            SizedBox(height: 5.0),
             _buildInputForm(),
             _buildActionButton()
           ])))));

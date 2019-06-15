@@ -6,26 +6,27 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/components/chat_message_list_item.dart';
+import 'package:tutiflutti/repository/chat.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 
-class ConflictsChat extends StatefulWidget {
-  final Function resetNewMessagesCount;
-
-  ConflictsChat(this.resetNewMessagesCount);
+class Chat extends StatefulWidget {
+  Chat();
 
   @override
-  ConflictsChatState createState() {
-    return ConflictsChatState();
+  ChatState createState() {
+    return ChatState();
   }
 }
 
-class ConflictsChatState extends State<ConflictsChat> {
+class ChatState extends State<Chat> {
+  MainModel _model;
   final TextEditingController _textEditingController = TextEditingController();
   bool _isComposingMessage = false;
+  ChatRepository chatRepository;
 
   @override
   void dispose() {
-    widget.resetNewMessagesCount();
+    _model.resumeWatchingIncomingMessages();
     super.dispose();
   }
 
@@ -33,6 +34,8 @@ class ConflictsChatState extends State<ConflictsChat> {
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
+      _model = model;
+      chatRepository = ChatRepository(model.gameId);
       return Scaffold(
           appBar: AppBar(title: Text("Chat")),
           body: Container(
@@ -53,7 +56,7 @@ class ConflictsChatState extends State<ConflictsChat> {
   Widget _buildMessageList(MainModel model) {
     return Flexible(
         child: FirebaseAnimatedList(
-            query: model.getGameChat(),
+            query: chatRepository.getGameChat(),
             padding: const EdgeInsets.all(8.0),
             reverse: true,
             sort: (a, b) => b.key.compareTo(a.key),
@@ -129,6 +132,6 @@ class ConflictsChatState extends State<ConflictsChat> {
   }
 
   void _sendMessage({String message, String imageUrl, MainModel model}) {
-    model.sendMessage(message, model.username);
+    chatRepository.sendMessage(message, model.username);
   }
 }

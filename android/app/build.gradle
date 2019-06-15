@@ -12,9 +12,9 @@ if (flutterRoot == null) {
 }
 
 
-def flutterVersionCode = 2
+def flutterVersionCode = 4
 
-def flutterVersionName = '1.1'
+def flutterVersionName = '1.3.0'
 
 
 apply plugin: 'com.android.application'

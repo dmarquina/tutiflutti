@@ -4,7 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:tutiflutti/page/conflicts_chat.dart';
+import 'package:tutiflutti/page/chat.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
 import 'package:tutiflutti/util/ui/rainbow_colors.dart';
@@ -44,7 +44,6 @@ class WaitingRoomState extends State<WaitingRoom> {
     _subscriptionCanStartGame.cancel();
     if (!_gameStarted) {
       widget._model.deleteUserFromGame(widget._model.userId);
-      widget._model.setReviewToUser(widget._model.userId, widget._model.username);
     }
 
     super.dispose();
@@ -61,12 +60,15 @@ class WaitingRoomState extends State<WaitingRoom> {
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
           appBar: AppBar(
-              title: Text(widget.title.toUpperCase()),
+              title: Text(widget.title.toUpperCase(), style: TextStyle(fontSize: 24)),
+              backgroundColor: Colors.black87,
+              elevation: 0.0,
               centerTitle: true,
               automaticallyImplyLeading: false),
           body: Container(
             color: Colors.black87,
             child: Column(children: <Widget>[
+              Divider(color: Colors.white),
               Expanded(flex: 8, child: _buildUsersBoard()),
               Expanded(flex: 2, child: _buildLetsPlayButton(model))
             ]),
@@ -92,6 +94,7 @@ class WaitingRoomState extends State<WaitingRoom> {
   Widget _buildLetsPlayButton(MainModel model) {
     return Column(
       children: <Widget>[
+        Divider(color: Colors.white),
         Container(
           padding: EdgeInsets.symmetric(vertical: 20.0),
           child: FlatButton(

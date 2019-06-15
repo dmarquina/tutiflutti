@@ -2,17 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tutiflutti/page/wait_reviews.dart';
+import 'package:tutiflutti/repository/reviews_conflicts.dart';
 import 'package:tutiflutti/scoped_model/main.dart';
 import 'package:tutiflutti/util/constants.dart';
 
 class ReviewPage extends StatelessWidget {
   String userIdToReview = '';
   String usernameToReview = '';
+  ReviewsConflictsRepository reviewsConflictsRepository;
 
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
+      reviewsConflictsRepository = ReviewsConflictsRepository(model.gameId);
       return Scaffold(
           appBar: Theme.of(context).platform == TargetPlatform.iOS
               ? CupertinoNavigationBar(
@@ -25,7 +28,8 @@ class ReviewPage extends StatelessWidget {
                   child: StreamBuilder(
                       stream: model.getUserInfo(model.userToReviewId),
                       builder: (BuildContext context, AsyncSnapshot snapshot) {
-                        Map<String, String> userInputs = model.getUserInputs(snapshot);
+                        Map<String, String> userInputs =
+                            reviewsConflictsRepository.getUserInputs(snapshot);
                         return _buildReview(context, model, userInputs, snapshot);
                       }))));
     });
@@ -104,13 +108,15 @@ class ReviewPage extends StatelessWidget {
                   direction: DismissDirection.horizontal,
                   onDismissed: (DismissDirection direction) {
                     if (direction == DismissDirection.startToEnd) {
-                      model.setGoodAnswers(categories[index], inputs[index], userIdToReview);
+                      reviewsConflictsRepository.setGoodAnswers(
+                          categories[index], inputs[index], userIdToReview);
                     } else if (direction == DismissDirection.endToStart) {
-                      model.insertNewConflicts(categories[index], inputs[index], userIdToReview);
+                      reviewsConflictsRepository.insertNewConflicts(
+                          categories[index], inputs[index], userIdToReview);
                     }
                     _itemCount--;
                     if (_itemCount == 0) {
-                      model.subtractOneReviewersLeft();
+                      reviewsConflictsRepository.subtractOneReviewersLeft();
                       Navigator.pushReplacement(
                           context, MaterialPageRoute(builder: (context) => WaitReviewsPage(model)));
                     }
@@ -150,7 +156,7 @@ class ReviewPage extends StatelessWidget {
           color: Colors.teal,
           child: Text('Continuar', style: TextStyle(color: Colors.white)),
           onPressed: () {
-            model.subtractOneReviewersLeft();
+            reviewsConflictsRepository.subtractOneReviewersLeft();
             Navigator.pushReplacement(
                 context, MaterialPageRoute(builder: (context) => WaitReviewsPage(model)));
           })
@@ -158,8 +164,8 @@ class ReviewPage extends StatelessWidget {
   }
 
   String getUserToReview(AsyncSnapshot snapshot) {
-    userIdToReview = snapshot.data.key.toString();
-    usernameToReview = snapshot.data.value['username'].toString();
+    userIdToReview = snapshot.data?.key.toString();
+    usernameToReview = snapshot.data?.value['username'].toString();
     return usernameToReview;
   }
 }

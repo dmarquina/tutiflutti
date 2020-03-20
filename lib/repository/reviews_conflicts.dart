@@ -1,54 +1,53 @@
 import 'dart:async';
 
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:tutiflutti/util/constants.dart';
-import 'package:tutiflutti/util/firebase_child_reference.dart';
 
 class ReviewsConflictsRepository {
-  DatabaseReference gameDatabase;
+  DocumentReference gameReference;
+  final databaseReference = Firestore.instance;
 
   ReviewsConflictsRepository(String gameId) {
-    gameDatabase = FirebaseReference.getReference('game').child(gameId);
+    gameReference = databaseReference.collection('game').document(gameId);
   }
 
   insertNewConflicts(String category, String answer, String userId) async {
-    DataSnapshot dataSnapshot =
-        await gameDatabase.child('conflicts').child(category + answer).once();
-    if (dataSnapshot.value != null) {
-      Map<dynamic, dynamic> owners = dataSnapshot.value['owners'];
+    DocumentSnapshot documentSnapshot =
+        await gameReference.collection('conflicts').document(category + answer).get();
+    if (documentSnapshot.exists) {
+      Map<dynamic, dynamic> owners = documentSnapshot.data['owners'];
       owners[userId] = userId;
-      await gameDatabase.child('conflicts').child(category + answer).update({
-        'category': dataSnapshot.value['category'],
-        'answer': dataSnapshot.value['answer'],
+      await gameReference.collection('conflicts').document(category + answer).updateData({
+        'category': documentSnapshot.data['category'],
+        'answer': documentSnapshot.data['answer'],
         'owners': owners
       });
     } else {
-      await gameDatabase.child('conflicts').update({
-        category + answer: {
-          'category': category,
-          'answer': answer,
-          'owners': {userId: userId}
-        }
+      await gameReference.collection('conflicts').document(category + answer).setData({
+        'category': category,
+        'answer': answer,
+        'owners': {userId: userId}
       });
     }
   }
 
   Future<void> setGoodAnswers(String category, String answer, String userId) async {
-    DataSnapshot dataSnapshot =
-        await gameDatabase.child('goodAnswers').child(category + answer).once();
-    if (dataSnapshot.value == null) {
+    DocumentSnapshot documentSnapshot =
+        await gameReference.collection('goodAnswers').document(category + answer).get();
+    if (!documentSnapshot.exists) {
       updateUserScoreAndInputsReviewed(userId, Constants.POINTS_FOR_GOOD_ANSWER, category);
       insertNewGoodAnswer(category, answer, userId);
     } else {
-      if (dataSnapshot.value['category'] == category && dataSnapshot.value['answer'] == answer) {
-        if (dataSnapshot.value['originalOwner'] != null) {
-          String userIdOwner = dataSnapshot.value['originalOwner'];
+      if (documentSnapshot.data['category'] == category &&
+          documentSnapshot.data['answer'] == answer) {
+        if (documentSnapshot.data['originalOwner'] != null) {
+          String userIdOwner = documentSnapshot.data['originalOwner'];
           updateUserScoreAndInputsReviewed(
               userIdOwner, Constants.NEGATIVE_POINTS_FOR_GOOD_REPEATED_ANSWER, category);
           updateUserScoreAndInputsReviewed(
               userId, Constants.POINTS_FOR_REPEATED_GOOD_ANSWER, category);
-          updateOwnerGoodAnswer(category, answer, userId);
+          updateGoodAnswerKeepingOriginalOwner(category, answer);
         } else {
           updateUserScoreAndInputsReviewed(
               userId, Constants.POINTS_FOR_REPEATED_GOOD_ANSWER, category);
@@ -61,50 +60,51 @@ class ReviewsConflictsRepository {
   }
 
   subtractOneReviewersLeft() async {
-    DataSnapshot snapshot = await gameDatabase.child('reviewersLeft').once();
-    await gameDatabase.update({'reviewersLeft': snapshot.value - 1});
+    DocumentSnapshot documentSnapshot = await gameReference.get();
+    await gameReference.updateData({'reviewersLeft': documentSnapshot['reviewersLeft'] - 1});
   }
 
   subtractOneConflictReviewersLeft() async {
-    DataSnapshot snapshot = await gameDatabase.child('conflictReviewersLeft').once();
-    await gameDatabase.update({'conflictReviewersLeft': snapshot.value - 1});
+    DocumentSnapshot documentSnapshot = await gameReference.get();
+    await gameReference
+        .updateData({'conflictReviewersLeft': documentSnapshot['conflictReviewersLeft'] - 1});
   }
 
   Future<void> insertNewGoodAnswer(String category, String answer, String userId) async {
-    await gameDatabase.child('goodAnswers').update({
-      category + answer: {'category': category, 'answer': answer, 'originalOwner': userId}
-    });
+    await gameReference
+        .collection('goodAnswers')
+        .document(category + answer)
+        .setData({'category': category, 'answer': answer, 'originalOwner': userId});
   }
 
-  Future<void> updateOwnerGoodAnswer(String category, String answer, String userId) async =>
-      await gameDatabase
-          .child('goodAnswers')
-          .child(category + answer)
-          .set({'category': category, 'answer': answer});
+  Future<void> updateGoodAnswerKeepingOriginalOwner(String category, String answer) async =>
+      await gameReference
+          .collection('goodAnswers')
+          .document(category + answer)
+          .updateData({'category': category, 'answer': answer});
 
   Future<Map<String, dynamic>> getConflicts() async {
-    DataSnapshot snapshot = await gameDatabase.child('conflicts').once();
-    Map<String, dynamic> conflicts = Map.from(snapshot.value);
+    QuerySnapshot snapshot = await gameReference.collection('conflicts').getDocuments();
+    Map<String, dynamic> conflicts = Map.fromIterable(snapshot.documents.map((d) => d.data));
 //    conflicts
 //        .removeWhere((k, v) => v['owners'][userToReviewId] != null || v['owners'][userId] != null);
     return conflicts;
   }
 
   Future<void> updateUserScoreAndInputsReviewed(String userId, int score, String category) async {
-    DataSnapshot snapshot = await gameDatabase.child('users').child(userId).once();
-    int newScore = snapshot.value['score'] + score;
+    DocumentSnapshot snapshot = await gameReference.collection('users').document(userId).get();
+    int newScore = snapshot.data['score'] + score;
 
     if (score != Constants.NEGATIVE_POINTS_FOR_GOOD_REPEATED_ANSWER) {
-      snapshot.value['inputsReviewed'] =
-          checkInputsReviewed(snapshot.value['inputsReviewed'], score, category);
+      snapshot.data['inputsReviewed'] =
+          checkInputsReviewed(snapshot.data['inputsReviewed'], score, category);
     }
-
-    await gameDatabase.child('users').child(userId).set({
-      'inputs': snapshot.value['inputs'],
-      'reviewTo': snapshot.value['reviewTo'],
-      'username': snapshot.value['username'],
+    await gameReference.collection('users').document(userId).setData({
+      'inputs': snapshot.data['inputs'],
+      'reviewTo': snapshot.data['reviewTo'],
+      'username': snapshot.data['username'],
       'score': newScore,
-      'inputsReviewed': snapshot.value['inputsReviewed']
+      'inputsReviewed': snapshot.data['inputsReviewed']
     });
   }
 
@@ -115,12 +115,12 @@ class ReviewsConflictsRepository {
   }
 
   addOneSupportConflict(String conflictId) async {
-    DataSnapshot snapshot = await gameDatabase.child('conflicts').child(conflictId).once();
-    int newSupport = snapshot.value['support'] != null ? snapshot.value['support'] + 1 : 1;
-    await gameDatabase.child('conflicts').child(conflictId).update({
-      'answer': snapshot.value['answer'],
-      'category': snapshot.value['category'],
-      'owners': snapshot.value['owners'],
+    DocumentSnapshot snapshot = await gameReference.collection('conflicts').document(conflictId).get();
+    int newSupport = snapshot.data['support'] != null ? snapshot.data['support'] + 1 : 1;
+    await gameReference.collection('conflicts').document(conflictId).updateData({
+      'answer': snapshot.data['answer'],
+      'category': snapshot.data['category'],
+      'owners': snapshot.data['owners'],
       'support': newSupport
     });
   }
@@ -144,11 +144,31 @@ class ReviewsConflictsRepository {
 
   Future<StreamSubscription<Event>> watchIfConflictIsOver(
       Function goToScore, String userId, int usersLength) async {
-    return gameDatabase.child('conflictReviewersLeft').onValue.listen((Event event) {
-      if (event.snapshot.value == 0) {
-        gameDatabase.child('conflicts').once().then((conflicts) async {
+    return gameReference.get().asStream().listen((event) {
+      if (event.data == 0) {
+        gameReference.child('conflicts').once().then((conflicts) async {
           await Future.forEach(Map.from(conflicts.value).values, (value) async {
-            DataSnapshot ds = await gameDatabase
+            DataSnapshot ds = await gameReference
+                .child('goodAnswers')
+                .child('${value['category']}${value['answer']}')
+                .once();
+            if (ds.value != null && value['owners'][userId] != null) {
+              await this.setGoodAnswers(value['category'], value['answer'], userId);
+            } else if (value['owners'][userId] != null &&
+                value['support'] != null &&
+                value['support'] > (usersLength / 2)) {
+              await this.setGoodAnswers(value['category'], value['answer'], userId);
+            }
+          });
+          goToScore();
+        });
+      }
+    });
+    return gameReference.child('conflictReviewersLeft').onValue.listen((Event event) {
+      if (event.snapshot.value == 0) {
+        gameReference.child('conflicts').once().then((conflicts) async {
+          await Future.forEach(Map.from(conflicts.value).values, (value) async {
+            DataSnapshot ds = await gameReference
                 .child('goodAnswers')
                 .child('${value['category']}${value['answer']}')
                 .once();
